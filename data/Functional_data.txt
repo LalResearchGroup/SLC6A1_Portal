@@ -1,0 +1,117 @@
+Transcript	Gene	Chr	Genomic_pos	cDNA_pos	cDNA_ref	Transcript_pos	Direction	Allele	Codon_pos	Codon_ref	AA_pos	AA_ref	AA_alt	Original_AA_exchange	Phenotype	Pathogenicity	GABA uptake (vs wt)	Surface expression (vs wt)	Total expression (vs wt)	Relative uptake/surface expression	Relative surface expression/total expression
+	SLC6A1										44	R	Q	R44Q#	epilepsy with myoclonic-atonic seizures	pathogenic/ likely pathogenic	0.0875	0.5	0.8	0.17	0.625
+	SLC6A1										44	R	W	R44W	developmental disorder	pathogenic/ likely pathogenic	0.0575	0.53	0.58	0.11	0.913793103
+	SLC6A1										73	L	F	L73F	epilepsy		0.3325	0.46	0.42	0.72	1.095238095
+	SLC6A1										75	G	R	G75R#	generalized epilepsy, intellectual disability	likely pathogenic	0.105	0.42	0.65	0.25	0.646153846
+	SLC6A1										140	Y	C	Y140C#	epilepsy with myoclonic-atonic seizures, mild to moderate intellectual disability	likely pathogenic	0.0725	0.34	0.86	0.22	0.395348837
+	SLC6A1										145	S	F	S145F#	mild intellectual disability	pathogenic	0.055	0.56	0.55	0.1	1.018181818
+	SLC6A1										151	L	X	L151RS*35#	intellectual disability	pathogenic	0.011	0.12	0.33	0.09	0.363636364
+	SLC6A1										193	W	X	W193X#	epilepsy with myoclonic-atonic seizures	pathogenic	0.02	0.17	0.3	0.12	0.566666667
+	SLC6A1										232	G	V	G232V#	epilepsy with myoclonic-atonic seizures, mild to moderate intellectual disability	likely pathogenic	0.12125	0.27	0.68	0.45	0.397058824
+	SLC6A1										234	G	S	G234S	Lennox-Gastaut Syndrome	pathogenic	0.38	0.69	0.78	0.55	0.884615385
+	SLC6A1										288	A	V	A288V#	Autism Spectrum Disorder	pathogenic/ likely pathogenic	0.24	0.47	0.55	0.51	0.854545455
+	SLC6A1										295	S	L	S295L	neurodevelopmental delay	pathogenic	0.0175	0.28	0.65	0.07	0.430769231
+	SLC6A1										299	G	V	G299V	Autism Spectrum Disorder		0.0425	0.52	0.64	0.08	0.8125
+	SLC6A1										297	G	R	G297R#	epilepsy with myoclonic-atonic seizures	pathogenic/ likely pathogenic	0.034	0.46	0.8	0.07	0.575
+	SLC6A1										305	A	T	A305T	developmental disorder	likely pathogenic	0.2085	0.77	0.84	0.27	0.916666667
+	SLC6A1										334	A	P	A334P#	epilepsy with myoclonic-atonic seizures	pathogenic	0.2762	0.46	0.63	0.6	0.73015873
+	SLC6A1										357	A	V	A357V#	Rett-like syndrome	pathogenic	0.2575	0.59	0.95	0.43	0.621052632
+	SLC6A1										361	P	T	P361T	Autism Spectrum Disorder, epilepsy with absence and atonic seizures	pathogenic	0.3225	0.41	0.52	0.8	0.788461538
+	SLC6A1										385	F	L	F385L#	epilepsy with myoclonic-atonic seizures, mild to moderate intellectual disability	pathogenic	0.10325	0.69	1.02	0.15	0.676470588
+	SLC6A1										457	G	X	G457hfs#	epilepsy with myclonic-atonic seizures	pathogenic	0.026	0.09	0.34	0.29	0.264705882
+	SLC6A1										511	V	M	V511M#	generalized epilepsy, mild intellectual disability	conflicting interpretations of pathogenicity	0.249428571	0.32	0.73	0.79	0.438356164
+	SLC6A1										550	G	R	G550R#	Autism Spectrum Disorder	pathogenic/ likely pathogenic	0.01125	0.56	0.64	0.02	0.875
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					

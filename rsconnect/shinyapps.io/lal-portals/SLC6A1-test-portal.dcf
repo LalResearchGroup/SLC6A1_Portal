@@ -1,0 +1,11 @@
+name: SLC6A1-test-portal
+title:
+username:
+account: lal-portals
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4811645
+bundleId: 5306864
+url: https://lal-portals.shinyapps.io/SLC6A1-test-portal/
+when: 1638218941.12532
+lastSyncTime: 1638218941.12533

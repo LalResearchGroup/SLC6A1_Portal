@@ -1,0 +1,165 @@
+Link	AA_ref	AA_alt	AA_pos	Gene	ClinicalSignificance
+https://www.ncbi.nlm.nih.gov/clinvar/variation/69689	Gly	Ser	105	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/192368	Arg	Gln	44	SLC6A1	Pathogenic/Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/192369	Gly	Arg	297	SLC6A1	Pathogenic/Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/192370	Ala	Pro	334	SLC6A1	Pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/192372	Ala	Val	288	SLC6A1	Pathogenic/Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/224107	Asp	Gly	451	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/280932	Gly	Arg	550	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/376950	Val	Leu	578	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/377065	Leu	Ile	415	SLC6A1	Benign/Likely benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/392463	Gln	Lys	209	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/391598	Pro	Leu	247	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/392917	Asn	Thr	310	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/383730	Gly	Arg	550	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/390629	Gly	Ser	63	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/421836	Asn	Asp	66	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/422549	Gly	Arg	75	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/421676	Gln	Arg	106	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/421382	Ser	Arg	459	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/421211	Val	Met	511	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/426798	Gly	Arg	79	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/430183	Arg	Cys	50	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/429293	Gly	Arg	362	SLC6A1	Pathogenic/Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/432110	Gly	Glu	94	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/432150	Gly	Arg	307	SLC6A1	Pathogenic/Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/433100	Arg	His	277	SLC6A1	Benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/449654	Arg	Trp	44	SLC6A1	Pathogenic/Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/451427	Gly	Val	79	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/452659	Leu	Val	366	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/475474	Phe	Tyr	51	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/475478	Cys	Phe	102	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/475484	Asp	Asn	165	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/475469	Arg	His	417	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/475485	Ser	Gly	18	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/475486	Met	Val	179	SLC6A1	Benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/520878	Phe	Ser	270	SLC6A1	Pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/521027	Val	Ile	323	SLC6A1	Pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/521429	Asp	Glu	451	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/542197	Ile	Val	13	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/542200	Arg	Gln	479	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/542202	Arg	Cys	419	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/542199	Glu	Val	575	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/542198	Ala	Val	357	SLC6A1	Pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/546930	Ser	Pro	431	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/562041	Ile	Thr	292	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/582356	Arg	Pro	44	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/567558	Ile	Val	405	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/578031	Ala	Asp	553	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/568080	Pro	Ser	580	SLC6A1	Benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/572893	Gly	Arg	111	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/573328	Ile	Val	220	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/568839	Phe	Ser	256	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/570384	Ser	Arg	459	SLC6A1	Pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/575017	Arg	His	419	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/575977	Cys	Arg	468	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/571859	Trp	Arg	285	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/569446	Met	Thr	487	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/565739	Leu	Arg	547	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/589804	Ile	Met	434	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/587970	Lys	Glu	33	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/624208	Gln	Arg	199	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/624211	Arg	His	566	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/633519	Gly	Ser	393	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/637992	Ser	Pro	103	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/652785	Asp	Tyr	52	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/640001	Ile	Val	91	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/644749	Gly	Val	111	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/650130	Val	Met	125	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/659564	Arg	His	195	SLC6A1	Benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/646455	Pro	Ser	262	SLC6A1	Likely benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/651439	Gly	Arg	263	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/645782	Asn	Asp	315	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/660726	Val	Phe	323	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/656334	Ala	Thr	334	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/654519	Arg	Leu	419	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/655599	Ile	Val	506	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/647588	Ile	Thr	507	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/664225	Gly	Ser	561	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/684489	Ser	Leu	295	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/801934	Gly	Arg	11	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/805477	Gly	Glu	111	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/809427	Cys	Tyr	499	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/807496	Arg	Leu	50	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/812761	Ser	Phe	56	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/813790	Cys	Tyr	173	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/813784	Lys	Gln	278	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/813786	Val	Leu	511	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/833942	Ala	Ser	334	SLC6A1	Likely benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/833947	Val	Ile	578	SLC6A1	Benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/833547	Gly	Arg	583	SLC6A1	Benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/854894	Ile	Thr	13	SLC6A1	Benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/847470	Lys	Asn	48	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/851177	Gly	Cys	105	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/853900	Gly	Asp	105	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/843210	Ala	Val	129	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/844522	Lys	Glu	206	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/849973	Val	Ala	240	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/848906	Asn	Ser	310	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/853247	Asn	Lys	310	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/844693	Val	Met	342	SLC6A1	Pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/837818	Met	Thr	345	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/845407	Gly	Asp	443	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/847691	Val	Glu	464	SLC6A1	Likely benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/837061	Gly	Arg	533	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/861670	Pro	Ala	580	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/872484	Thr	Met	217	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/872485	Arg	Gly	318	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/949443	Met	Val	185	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/944396	Ala	Thr	367	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/947552	Lys	Arg	448	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/948758	Pro	Ala	505	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/938729	Asp	Asn	43	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/935526	Arg	His	50	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/933706	Trp	Leu	193	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/941116	Glu	Lys	283	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/941079	Val	Leu	284	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/938202	Ser	Arg	456	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/939596	Glu	Gln	585	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/962159	Cys	Gly	57	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/953739	Gly	Val	297	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/961828	Met	Ile	487	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/956735	Met	Val	555	SLC6A1	Benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/970910	Ile	Val	272	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/967975	Ile	Val	383	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/969069	Thr	Pro	593	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/976262	Gly	Arg	208	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/976158	Ala	Thr	305	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/978926	Tyr	Cys	140	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/978897	Gly	Val	232	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/982839	Ala	Val	289	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/985653	Gly	Ala	78	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/986049	Gly	Val	443	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/989274	Asp	Glu	25	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1001393	Ile	Phe	13	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1003510	Val	Met	356	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/998411	Ser	Arg	591	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1014188	Ser	Pro	14	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1021625	Ser	Thr	302	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1023137	Val	Ile	316	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1024030	Phe	Leu	502	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1018313	Thr	Met	520	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1020678	Ser	Arg	574	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1032109	Ala	Val	509	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1037630	Gly	Val	65	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1035887	Ile	Met	84	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1038355	Thr	Met	260	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1045844	Ser	Leu	328	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1047403	Gly	Asp	476	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1034901	Met	Lys	552	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1057552	Met	Val	121	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1063658	Leu	Arg	151	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1054920	Met	Leu	179	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1052031	Phe	Leu	480	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1052875	Met	Thr	555	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1066559	Gly	Arg	75	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1091626	Arg	Cys	172	SLC6A1	Likely benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1136836	Tyr	Cys	551	SLC6A1	Likely benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1160643	Val	Ile	142	SLC6A1	Likely benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1166083	Ile	Val	110	SLC6A1	Benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1165197	Asp	Glu	202	SLC6A1	Benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1167091	Ile	Leu	405	SLC6A1	Benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1170380	Gly	Ala	533	SLC6A1	Benign
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1174117	Gly	Cys	78	SLC6A1	Likely pathogenic
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1176147	Val	Leu	225	SLC6A1	Uncertain/conflicting
+https://www.ncbi.nlm.nih.gov/clinvar/variation/1176148	Asn	Asp	314	SLC6A1	Uncertain/conflicting
