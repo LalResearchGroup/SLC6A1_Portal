@@ -93,16 +93,17 @@ NAFE = Non-acquired focal epilepsy; EOAE = Early onset absence epilepsy; DEE = D
 basic_abbreviations4 = "ID = Intellectual disability; DD = Developmental delay"
 
 #tippy
-epi_syndrome_tippy <- h5(HTML(paste0("<ul><li>EMAS = Epilepsy with myoclonic-atonic seizures</li>")),
-                         HTML(paste0("<li>GGE = Genetic generalized epilepsy</li>")), 
-                         HTML(paste0("<li>NAFE = Non-acquired focal epilepsy</li>")), 
-                         HTML(paste0("<li>EOAE = Early onset absence epilepsy</li>")), 
-                         HTML(paste0("<li>DEE = Developmental epileptic encephalopathy</li>")), 
-                         HTML(paste0("<li>CAE = Childhood absence epilepsy</li>")), 
-                         HTML(paste0("<li>TLE = Temporal lobe epilepsy</li>")), 
-                         HTML(paste0("<li>LGS = Lennox-Gastaut syndrome</li>")), 
-                         HTML(paste0("<li>No SZ = No seizures</li>")), 
-                         HTML(paste0("<li>UG = Unclassified general</li>")), align = "left")
+epi_syndrome_tippy <- h5(HTML(paste0("<ul><li>CAE = Childhood Absence Epilepsy</li>")), 
+                         HTML(paste0("<li>DEE = Developmental Epileptic Encephalopathy</li>")), 
+                         HTML(paste0("<li>EMAS = Epilepsy with Myoclonic-Atonic Seizures</li>")),
+                         HTML(paste0("<li>GGE = Genetic Generalized Epilepsy</li>")), 
+                         HTML(paste0("<li>LGS = Lennox-Gastaut Syndrome</li>")), 
+                         HTML(paste0("<li>NAFE = Non-Acquired Focal Epilepsy</li>")), 
+                         # HTML(paste0("<li>EOAE = Early onset absence epilepsy</li>")), 
+                         HTML(paste0("<li>TLE = Temporal Lobe Epilepsy</li>")), 
+                         # HTML(paste0("<li>No SZ = No seizures</li>")), 
+                         # HTML(paste0("<li>UG = Unclassified general</li>")), 
+                         align = "left")
 
 dd_id_tippy <- h5(HTML(paste0("<ul><li>DD = Developmental delay</li>")),
                   HTML(paste0("<li>ID = Intellectual disability</li>")), align = "left")
@@ -263,7 +264,7 @@ shinyUI(
                            ), 
                     ),
                     
-                    #Family tab 
+                    #Family tab / Community tab
                     column(2,align = "center",
                            br(),
                            div(panel(
@@ -276,7 +277,7 @@ shinyUI(
                                  br(),
                                  actionBttn(
                                    inputId = "familyBtn",
-                                   label = "Families",
+                                   label = "Community",
                                    color = "warning",
                                    block = TRUE,
                                    style = "stretch"
@@ -419,7 +420,7 @@ shinyUI(
                                  width = 12,
 
                               tabsetPanel(
-                              #Phenotype summary
+                              #Phenotype overview
                                 tabPanel(title = basic_phenotype_title1,
                                          br(),
                                          div(p("N =" ,Patient_data.df %>% filter(Gene == gene1,!is.na(Epilepsy)) %>% nrow(), " patients"),style = "font-size:15px;color:black;"),
@@ -479,9 +480,9 @@ shinyUI(
                           ))))
                      )))),#end basic info tab panel
 
-        ##### FAMILIES #####
+        ##### FAMILIES ##### COMMUNITY
 
-        tabPanel(title = "Families", value = "familyTab",
+        tabPanel(title = "Community", value = "familyTab",
                  tags$style(HTML(paste0("
                       .box.box-solid.box-danger>.box-header {
                       background-color: ",schema_color_light,";
@@ -493,7 +494,7 @@ shinyUI(
                       }"))),
          fluidRow(
            column(10, offset = 1,
-            panel(heading = "For Families", status = "warning",
+            panel(heading = "Community resources", status = "warning",
               tabsetPanel(
                 tabPanel(title = "Videos",
                   fluidRow(
@@ -573,7 +574,7 @@ shinyUI(
                    ))
          )))))
 
-        ), # end families tab
+        ), # end families tab / community tab
 
         # ##### VARIANT ANALYSIS #####
 
@@ -969,7 +970,7 @@ shinyUI(
                             p("Amber Freed"))
                     ))
                 )),
-                panel(heading = "Impressum", 
+                panel(heading = "Imprint", 
                       status = "default", 
                       p("We object to any commercial use and disclosure of data."),
                       p(strong("Copyright and use:"), "The authors grants you the right of use to make a private copy for personal purposes.
@@ -1004,7 +1005,7 @@ shinyUI(
                                                                              use_rounded() %>% use_align("center") %>% use_bs_responsive()
                                                                        ))
                                                        ),
-                                                       tabPanel("Families",
+                                                       tabPanel("Community",
                                                                 column(8, offset = 2,
                                                                        box(title= "",
                                                                            align = "right",
