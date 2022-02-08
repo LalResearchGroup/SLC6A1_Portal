@@ -17,6 +17,7 @@ library(seqinr)
 library(bio3d)
 library(RColorBrewer)
 library(plyr)
+library(rsconnect)
 
 ############## FUNCTIONS, STYLE ############
 
