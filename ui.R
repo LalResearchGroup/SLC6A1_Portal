@@ -264,7 +264,7 @@ shinyUI(
                            ), 
                     ),
                     
-                    #Family tab / Community tab
+                    #Family tab / Educational resources tab
                     column(2,align = "center",
                            br(),
                            div(panel(
@@ -277,7 +277,7 @@ shinyUI(
                                  br(),
                                  actionBttn(
                                    inputId = "familyBtn",
-                                   label = "Community",
+                                   label = "Educational resources",
                                    color = "warning",
                                    block = TRUE,
                                    style = "stretch"
@@ -480,9 +480,9 @@ shinyUI(
                           ))))
                      )))),#end basic info tab panel
 
-        ##### FAMILIES ##### COMMUNITY
+        ##### FAMILIES ##### Educational resources
 
-        tabPanel(title = "Community", value = "familyTab",
+        tabPanel(title = "Educational resources", value = "familyTab",
                  tags$style(HTML(paste0("
                       .box.box-solid.box-danger>.box-header {
                       background-color: ",schema_color_light,";
@@ -494,7 +494,7 @@ shinyUI(
                       }"))),
          fluidRow(
            column(10, offset = 1,
-            panel(heading = "Community resources", status = "warning",
+            panel(heading = "Educational resources and patient advocacy groups", status = "warning",
               tabsetPanel(
                 tabPanel(title = "Videos",
                   fluidRow(
@@ -572,9 +572,53 @@ shinyUI(
                                target = '_blank'))
                      )
                    ))
-         )))))
+         ),
+         tabPanel(title = "Tutorials", value = "tutorialTab", #### Tutorials
+                  fluidRow(
+                    column(10, offset = 1,
+                           panel(heading = "Tutorials", status = "primary",
+                                 div(align = "center",
+                                     tabsetPanel(
+                                       tabPanel("Basic Information",
+                                                column(8, offset = 2,
+                                                       box(title= "",
+                                                           align = "right",
+                                                           width = 12,
+                                                           embed_url(tut_basic_info) %>%
+                                                             use_rounded() %>% use_align("center") %>% use_bs_responsive()
+                                                       ))
+                                       ),
+                                       tabPanel("Educational resources",
+                                                column(8, offset = 2,
+                                                       box(title= "",
+                                                           align = "right",
+                                                           width = 12,
+                                                           embed_url(tut_family) %>%
+                                                             use_rounded() %>% use_align("center") %>% use_bs_responsive()
+                                                       ))
+                                       ),
+                                       tabPanel("Variant Analysis",
+                                                column(8, offset = 2,
+                                                       box(title= "",
+                                                           align = "right",
+                                                           width = 12,
+                                                           embed_url(tut_variant_analysis) %>%
+                                                             use_rounded() %>% use_align("center") %>% use_bs_responsive()
+                                                       ))
+                                       ),
+                                       tabPanel("Research",
+                                                column(8, offset = 2,
+                                                       box(title= "",
+                                                           align = "right",
+                                                           width = 12,
+                                                           embed_url(tut_research) %>%
+                                                             use_rounded() %>% use_align("center") %>% use_bs_responsive()
+                                                       )))
+                                     )))))
+         )
+         ))))
 
-        ), # end families tab / community tab
+        ), # end families tab / Educational resources tab
 
         # ##### VARIANT ANALYSIS #####
 
@@ -989,47 +1033,5 @@ shinyUI(
                         "that we can improve.")),
                   panel(heading = "Data Generation", status = "default",
                         about_data_generation)
-                  ),
-                tabPanel(title = "Tutorials", value = "tutorialTab", #### Tutorials
-                                  fluidRow(
-                                    column(10, offset = 1,
-                                           panel(heading = "Tutorials", status = "primary",
-                                                 div(align = "center",
-                                                     tabsetPanel(
-                                                       tabPanel("Basic Information",
-                                                                column(8, offset = 2,
-                                                                       box(title= "",
-                                                                           align = "right",
-                                                                           width = 12,
-                                                                           embed_url(tut_basic_info) %>%
-                                                                             use_rounded() %>% use_align("center") %>% use_bs_responsive()
-                                                                       ))
-                                                       ),
-                                                       tabPanel("Community",
-                                                                column(8, offset = 2,
-                                                                       box(title= "",
-                                                                           align = "right",
-                                                                           width = 12,
-                                                                           embed_url(tut_family) %>%
-                                                                             use_rounded() %>% use_align("center") %>% use_bs_responsive()
-                                                                       ))
-                                                       ),
-                                                       tabPanel("Variant Analysis",
-                                                                column(8, offset = 2,
-                                                                       box(title= "",
-                                                                           align = "right",
-                                                                           width = 12,
-                                                                           embed_url(tut_variant_analysis) %>%
-                                                                             use_rounded() %>% use_align("center") %>% use_bs_responsive()
-                                                                       ))
-                                                       ),
-                                                       tabPanel("Research",
-                                                                column(8, offset = 2,
-                                                                       box(title= "",
-                                                                           align = "right",
-                                                                           width = 12,
-                                                                           embed_url(tut_research) %>%
-                                                                             use_rounded() %>% use_align("center") %>% use_bs_responsive()
-                                                                       )))
-        )))))
- )))))))) # end ui
+                  )
+ ))))))) # end ui
