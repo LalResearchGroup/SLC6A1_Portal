@@ -3,21 +3,19 @@
 ################################################
 ################## LIBRARIES ################
 
-library(shiny)
-library(plotly)
-library(readxl)
-library(readr)
-library(r3dmol)
-library(shinyWidgets)
-library(shinydashboard)
-library(shinydashboardPlus)
-library(DT)
-library(tidyverse)
-library(seqinr)
-library(bio3d)
-library(RColorBrewer)
-library(plyr)
-library(rsconnect)
+packages <- c("shiny", "shinyWidgets", "shinydashboard", "shinydashboardPlus", "plotly", "tippy", "r3dmol", "DT", "readr", "tidyverse", "vembedr", "RColorBrewer", "shinyhelper", "plyr", "readxl", "seqinr", "bio3d", "rsconnect", "pacman")
+
+for(p in packages)
+{
+  tryCatch(test <- require(p,character.only=T), 
+           warning=function(w) return())
+  if(!test)
+  {
+    print(paste("Package", p, "not found. Installing Package!"))
+    install.packages(p)
+    require(p)
+  }
+}
 
 ############## FUNCTIONS, STYLE ############
 
@@ -427,6 +425,9 @@ three_to_one_aa <- function(sequence){
   
 }
 ############## DATA ############
+
+
+
 #Load domain data 
 Domain_data.df <- read_delim("data/Domain.txt", delim = "\t") %>% 
   select(Aln_pos,Domain,Domain_color)
@@ -463,8 +464,8 @@ per3d.df <- read_delim("data/per3d.txt", delim = "\t") %>%
   dplyr::rename(pvalue_per2d  = "pvalue",
          odds_per2d  = "odds")
 
-#Load functional data
-Functional_data.df <- read_delim("data/Functional_data.txt", delim = "\t") %>% 
+#Load functional data mermer paper
+Functional_data_mermer.df <- read_delim("data/Functional_data_mermer.txt", delim = "\t") %>% #need to change object name (+mermer) to accommodate addition of biomarin functional dataset 
   dplyr::rename(uptake = "GABA uptake (vs wt)",
          surface_exp = "Surface expression (vs wt)",
          total_exp = "Total expression (vs wt)",
@@ -473,6 +474,17 @@ Functional_data.df <- read_delim("data/Functional_data.txt", delim = "\t") %>%
   filter(!is.na(AA_pos),
          AA_alt != "X") %>% 
   select(AA_pos,AA_alt,uptake,surface_exp,total_exp,relative_update_surface_exp,relative_surface_exp_tot_exp)
+
+#Load functional data biomarin paper
+# Functional_data_biomarin.df <- read_delim("data/Functional_data_biomarin.txt", delim = "\t") %>% 
+#   dplyr::rename(uptake = "GABA uptake (vs wt)",
+#                 surface_exp = "Surface expression (vs wt)",
+#                 total_exp = "Total expression (vs wt)",
+#                 relative_update_surface_exp = "Relative uptake/surface expression",
+#                 relative_surface_exp_tot_exp = "Relative surface expression/total expression") %>% 
+#   filter(!is.na(AA_pos),
+#          AA_alt != "X") %>% 
+#   select(AA_pos,AA_alt,uptake,surface_exp,total_exp,relative_update_surface_exp,relative_surface_exp_tot_exp)
 
 #Load patient and control data 
 Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v6.txt", delim = "\t") %>% 
@@ -483,7 +495,7 @@ Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v6.txt", delim = "\t
          Epilepsy = "Epilepsy") %>% 
   left_join(master.df %>% distinct(Transcript,Gene,AA_pos), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>% 
   left_join(Domain_gene.df %>% distinct(Domain,Gene,AA_pos,Domain_color), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>%  
-  left_join(Functional_data.df, by = c("AA_pos" = "AA_pos","AA_alt" = "AA_alt")) %>% 
+  left_join(Functional_data_mermer.df, by = c("AA_pos" = "AA_pos","AA_alt" = "AA_alt")) %>% 
   left_join(per3d.df) %>% 
   left_join(per2d.df) %>% 
   mutate(AA_ref = ifelse(!is.na(AA_ref),AA_ref,"XXX") %>% aaa(), ##warnings due to none matching aminoacids are fine 
@@ -606,6 +618,7 @@ shinyServer(function(input, output, session) {
   })
   
   ##### BASIC INFORMATION #####
+  
   #can be replicated for each additional gene 
   #Factor Gene1 
   
@@ -1744,7 +1757,7 @@ shinyServer(function(input, output, session) {
     
     
     variant.df <- master.df %>% 
-      left_join(Functional_data.df %>% distinct(Gene,AA_pos,functional_effect), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>% 
+      left_join(Functional_data_mermer.df %>% distinct(Gene,AA_pos,functional_effect), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>% 
       left_join(all_exchanges.df %>% distinct(Domain,Gene,AA_pos), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>% 
       mutate(AA_ref = aaa(AA_ref)) %>% 
       filter(Domain %in% selection_data.df$Domain,

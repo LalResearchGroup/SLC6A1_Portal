@@ -44,19 +44,20 @@ number_of_variants <- function(index,Uniprot_position){
 }
 
 #Load domain data 
-Domain_data.df <- read_delim("data/Domain.txt", delim = "\t") %>% 
+Domain_data.df <- read_delim(here("data", "Domain.txt"), delim = "\t") %>% 
   select(Aln_pos,Domain,Domain_color)
 
 #Load all possible exchanges 
-all_exchanges.df <- read_delim("data/master_table_exchanges.txt",delim = "\t") %>% 
+all_exchanges.df <- read_delim(here("data", "master_table_exchanges.txt"), delim = "\t") %>% 
   left_join(Domain_data.df %>% distinct(Aln_pos,Domain,Domain_color)) %>% 
   mutate(AA_ref = aaa(AA_ref),
-         AA_alt = convert_aa(AA_alt))
+         AA_alt = aaa(AA_alt))
 
 #Load master table 
-master.df <- read_delim("data/master_table.txt", delim = "\t") 
+master.df <- read_delim(here("data", "master_table.txt"), delim = "\t") %>% 
+  select(-Transcript)
 
-Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v6.txt", 
+Patient_data.df <- read_delim(here("data", "Patient_variants_SLC6A1_v6.txt"), 
                               "\t", escape_double = FALSE, trim_ws = TRUE) %>% 
   mutate(AA_pos = as.numeric(AA_pos)) %>% 
   select(-Transcript) %>% 
@@ -67,16 +68,17 @@ Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v6.txt",
   group_by(AA_pos) %>% 
   summarise(path_count = sum(var))
 
-Control_data.df <- read_delim("data/gnomad_variants.txt", delim = "\t") %>% 
+Control_data.df <- read_delim(here("data", "gnomad_variants.txt"), delim = "\t") %>% 
+  select(-Transcript) %>% 
   mutate(AA_ref = aaa(AA_ref),
-         AA_alt = convert_aa(AA_alt)) %>% 
+         AA_alt = aaa(AA_alt)) %>% 
   left_join(master.df %>% distinct(Gene,AA_pos,AA_pos), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>% 
   mutate(var = 1) %>%
   group_by(AA_pos) %>% 
   summarise(con_count = sum(var))
 
 ##enter the corresponding slc6a1 file here: SLC6A1_AF.txt in the pdb folder 
-structure_coordiantes.df<- read_delim("data/pdb/SLC6A1_AF.txt", delim = "\t") %>% 
+structure_coordiantes.df<- read_delim(here("data", "pdb/SLC6A1_AF.txt"), delim = "\t") %>% 
   rename(AA_pos = "Uniprot_position") %>% 
   select(AA_pos,x,y,z) %>% 
   filter(!is.na(x))
@@ -146,4 +148,4 @@ output.df %>%
   mutate(pvalue = fisher_pvalue,
          odds = fisher_odds,
          PER3D = ifelse(odds >1 & pvalue < 0.05,"PER3D","No-PER3D")) %>% 
-  write_delim("data/per3d.txt",delim = "\t")
+  write_delim(here("data", "per3d.txt"), delim = "\t")

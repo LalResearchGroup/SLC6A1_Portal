@@ -51,3 +51,8 @@ Thumbs.db
 .metadata
 *.iml
 *.ipr
+
+# Folder
+######################
+data_archive
+prep_data

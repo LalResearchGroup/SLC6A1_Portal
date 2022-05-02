@@ -3,13 +3,47 @@
 ################################################
 ################## DATA PREPARATION ############
 
+# Packages
+
 library(readr)
 library(tidyverse)
+library(here)
+
+# Pat variant table
+Pat_var.df <- read_delim("prep_data/Patient_variants_SLC6A1_v6_fixed.txt", "\t") %>% 
+  select(-X27)
+
+# output new file into 'data' table for use in ui/server
+write_delim(Pat_var.df, "data/Patient_variants_SLC6A1_v7.txt", "\t")
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+################################################
+################################################
+############ OLD pat var table changes #########
+##### check archived files for backtrace #######
+################################################
+################################################
 # Patient variants table
 ## read in old table for comparison
-pat.dat.old <- read_delim("data/Patient_variants_SLC6A1_v5.txt", 
+pat.dat.old <- read_delim("data_archive/Patient_variants_SLC6A1_v5.txt", 
                           "\t", escape_double = FALSE, col_types = cols(Chr = col_character(), 
                                                                         X27 = col_character(), `Cognitive Impairment` = col_character()), 
                           trim_ws = TRUE) %>% 
