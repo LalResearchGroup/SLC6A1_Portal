@@ -1,5 +1,7 @@
 library(tidyverse)
 library(Rfast)
+library(here)
+library(seqinr)
 
 
 #Calculate the variant burden inside a 3D bubble.
@@ -57,7 +59,7 @@ all_exchanges.df <- read_delim(here("data", "master_table_exchanges.txt"), delim
 master.df <- read_delim(here("data", "master_table.txt"), delim = "\t") %>% 
   select(-Transcript)
 
-Patient_data.df <- read_delim(here("data", "Patient_variants_SLC6A1_v6.txt"), 
+Patient_data.df <- read_delim(here("data", "Patient_variants_SLC6A1_v7.txt"), 
                               "\t", escape_double = FALSE, trim_ws = TRUE) %>% 
   mutate(AA_pos = as.numeric(AA_pos)) %>% 
   select(-Transcript) %>% 
