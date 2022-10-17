@@ -1,7 +1,7 @@
 #For one Gene 
 library(tidyverse)
 
-Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v5.txt", delim = "\t")
+Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v8.txt", delim = "\t")
 
 Control_data.df <- read_delim("data/gnomad_variants.txt", delim = "\t")
 

@@ -3,19 +3,21 @@
 ################################################
 ################## LIBRARIES ################
 
-packages <- c("shiny", "shinyWidgets", "shinydashboard", "shinydashboardPlus", "plotly", "tippy", "r3dmol", "DT", "readr", "tidyverse", "vembedr", "RColorBrewer", "shinyhelper", "plyr")
-
-for(p in packages)
-{
-  tryCatch(test <- require(p,character.only=T), 
-           warning=function(w) return())
-  if(!test)
-  {
-    print(paste("Package", p, "not found. Installing Package!"))
-    install.packages(p)
-    require(p)
-  }
-}
+library(shiny)
+library(shinyWidgets)
+library(shinydashboard)
+library(shinydashboardPlus)
+library(plotly)
+library(tippy)
+library(r3dmol)
+library(DT)
+library(readr)
+library(tidyverse)
+library(vembedr)
+library(RColorBrewer)
+library(shinyhelper)
+library(plyr)
+library(rsconnect)
 
 # CSS/STYLE/INFO #
 landing_panel <- "color: #333333;
@@ -167,14 +169,14 @@ research_geno_transcripts <- p("The following transcript was used:",em("SLC6A1")
                                "H: Helix")
 
 #Datasets required for research tab 
-Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v6.txt", delim = "\t") %>%
+Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v8.txt", delim = "\t") %>%
   dplyr::rename(Sz_onset = "Age at seizure onset (months)",
          Epilepsy = "Epilepsy") %>% 
   dplyr::rename(Autism = "Autistic traits",
          Epilepsy_syndrome = "Epilepsy Syndrome Classification",
          ID_after_sz_onset = "Cognitive Level AFTER Seizure Onset")
 
-Patient_data_missense.df <- read_delim("data/Patient_variants_SLC6A1_v6.txt", delim = "\t") %>% 
+Patient_data_missense.df <- read_delim("data/Patient_variants_SLC6A1_v8.txt", delim = "\t") %>% 
   dplyr::rename(Sz_onset = "Age at seizure onset (months)") %>% 
   filter(Vartype == "Missense ")
 

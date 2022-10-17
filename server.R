@@ -3,19 +3,25 @@
 ################################################
 ################## LIBRARIES ################
 
-packages <- c("shiny", "shinyWidgets", "shinydashboard", "shinydashboardPlus", "plotly", "tippy", "r3dmol", "DT", "readr", "tidyverse", "vembedr", "RColorBrewer", "shinyhelper", "plyr", "readxl", "seqinr", "bio3d", "rsconnect", "pacman")
-
-for(p in packages)
-{
-  tryCatch(test <- require(p,character.only=T), 
-           warning=function(w) return())
-  if(!test)
-  {
-    print(paste("Package", p, "not found. Installing Package!"))
-    install.packages(p)
-    require(p)
-  }
-}
+library(shiny)
+library(plotly)
+library(readxl)
+library(readr)
+library(r3dmol)
+library(shinyWidgets)
+library(shinydashboard)
+library(shinydashboardPlus)
+library(DT)
+library(tidyverse)
+library(seqinr)
+library(bio3d)
+library(RColorBrewer)
+library(plyr)
+library(tippy)
+library(vembedr)
+library(shinyhelper)
+library(rsconnect)
+library(pacman)
 
 ############## FUNCTIONS, STYLE ############
 
@@ -429,8 +435,9 @@ three_to_one_aa <- function(sequence){
 
 
 #Load domain data 
-Domain_data.df <- read_delim("data/Domain.txt", delim = "\t") %>% 
-  select(Aln_pos,Domain,Domain_color)
+Domain_data.df <- read_delim("data/Domain_cornelius.txt", delim = "\t") %>% 
+  dplyr::rename(Domain = Cornelius_level1, Domain_color = Cornelius_level2) %>% 
+  dplyr::select(Aln_pos,Domain,Domain_color)
 
 #Load all possible exchanges 
 all_exchanges.df <- read_delim("data/master_table_exchanges.txt",delim = "\t") %>% 
@@ -475,6 +482,11 @@ Functional_data_mermer.df <- read_delim("data/Functional_data_mermer.txt", delim
          AA_alt != "X") %>% 
   select(AA_pos,AA_alt,uptake,surface_exp,total_exp,relative_update_surface_exp,relative_surface_exp_tot_exp)
 
+Functional_data_biomarin.df <- read_csv("data/Functional_data_biomarin.csv") %>%
+  filter(!is.na(AA_pos),
+         AA_alt != "*") %>% 
+  select(AA_pos,AA_alt,uptake)
+
 #Load functional data biomarin paper
 # Functional_data_biomarin.df <- read_delim("data/Functional_data_biomarin.txt", delim = "\t") %>% 
 #   dplyr::rename(uptake = "GABA uptake (vs wt)",
@@ -487,7 +499,7 @@ Functional_data_mermer.df <- read_delim("data/Functional_data_mermer.txt", delim
 #   select(AA_pos,AA_alt,uptake,surface_exp,total_exp,relative_update_surface_exp,relative_surface_exp_tot_exp)
 
 #Load patient and control data 
-Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v6.txt", delim = "\t") %>% 
+Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v8.txt", delim = "\t") %>% 
   select(-Transcript) %>% 
   mutate(AA_pos = as.numeric(AA_pos)) %>% 
   ##specific to each dataset

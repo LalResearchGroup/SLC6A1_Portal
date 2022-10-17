@@ -8,15 +8,44 @@
 library(readr)
 library(tidyverse)
 library(here)
+library(readxl)
 
 # Pat variant table
 Pat_var.df <- read_delim("prep_data/Patient_variants_SLC6A1_v6_fixed.txt", "\t") %>% 
   select(-X27)
+# Updated table as of October 10, 2022
+Pat_var.df <- read_delim("prep_data/Patient_variants_SLC6A1_v7_edit.txt", "\t")
 
 # output new file into 'data' table for use in ui/server
-write_delim(Pat_var.df, "data/Patient_variants_SLC6A1_v7.txt", "\t")
+write_delim(Pat_var.df, "data/Patient_variants_SLC6A1_v7.txt", "\t") # latest file as of October 17, 2022 is v8 (patient removed from cohort due to lacking consent)
 
+# prep new functional data from biomarin
+df_biomarin_results_source <- read_excel(here("prep_data", "SLC6A1.supplement.tables.v03.xlsx"), 
+           sheet = "4-Results") %>% 
+  mutate(Gene = "SLC6A1") %>% 
+  mutate(AA_pos = str_extract(HGVSp,"[0-9]+") %>% as.numeric()) %>% 
+  mutate(AA_ref = str_extract(HGVSp, "^\\D+")) %>% 
+  mutate(AA_ref = gsub("^.*?\\.","", AA_ref)) %>% 
+  mutate(AA_alt = ifelse(`Variant impact` == "missense", sub(".*[0-9]", "", HGVSp), "NA")) %>% 
+  mutate(variant_impact = case_when(AA_alt == "*" ~ "stop gained",
+                                    AA_alt != "NA" ~ "missense",
+                                    `Variant impact` == "frameshift" ~ "frameshift",
+                                    `Variant impact` == "stop gained" ~ "stop gained",
+                                    `Variant impact` == "inframe indel" ~ "inframe indel",
+                                    `Variant impact` == "synonymous" ~ "synonymous")) %>% 
+  mutate(uptake = Avg_PercentWT/100)
+  #right_join(Pat_var.df, by = c("Pos" = "cDNA_pos", "Ref" = "cDNA_ref", "Alt" = "cDNA_alt")) %>% 
+  #mutate(cDNA_pos = str_extract(Transcript,"[0-9]+") %>% as.numeric())
 
+  
+# output new functional data file for use in ui/server
+write_csv(df_biomarin_results_source, "data/Functional_data_biomarin.csv")
+
+# read in new domain data
+df_domain <- read_delim(here("prep_data", "Domain_cornelius.txt"), delim = "\t") %>% 
+  rename(Domain_old = Domain, Domain_color_old = Domain_color)
+# output updated file to data
+write_delim(df_domain, here("data", "Domain_cornelius.txt"), delim = "\t")
 
 
 

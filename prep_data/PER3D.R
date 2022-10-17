@@ -46,51 +46,52 @@ number_of_variants <- function(index,Uniprot_position){
 }
 
 #Load domain data 
-Domain_data.df <- read_delim(here("data", "Domain.txt"), delim = "\t") %>% 
-  select(Aln_pos,Domain,Domain_color)
+Domain_data.df <- read_delim("data/Domain_cornelius.txt", delim = "\t") %>% 
+  dplyr::rename(Domain = Cornelius_level1, Domain_color = Cornelius_level2) %>% 
+  dplyr::select(Aln_pos,Domain,Domain_color)
 
 #Load all possible exchanges 
 all_exchanges.df <- read_delim(here("data", "master_table_exchanges.txt"), delim = "\t") %>% 
   left_join(Domain_data.df %>% distinct(Aln_pos,Domain,Domain_color)) %>% 
-  mutate(AA_ref = aaa(AA_ref),
+  dplyr::mutate(AA_ref = aaa(AA_ref),
          AA_alt = aaa(AA_alt))
 
 #Load master table 
-master.df <- read_delim(here("data", "master_table.txt"), delim = "\t") %>% 
-  select(-Transcript)
+master.df <- read_delim(here("data", "master_table.txt"), delim = "\t") #%>% 
+  #dplyr::select(-Transcript)
 
-Patient_data.df <- read_delim(here("data", "Patient_variants_SLC6A1_v7.txt"), 
+Patient_data.df <- read_delim(here("data", "Patient_variants_SLC6A1_v8.txt"), 
                               "\t", escape_double = FALSE, trim_ws = TRUE) %>% 
-  mutate(AA_pos = as.numeric(AA_pos)) %>% 
-  select(-Transcript) %>% 
-  mutate(AA_pos = as.numeric(AA_pos)) %>% 
-  left_join(master.df %>% distinct(Transcript,Gene,AA_pos), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>% 
-  left_join(all_exchanges.df %>% distinct(Domain,Gene,AA_pos), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>%  
-  mutate(var = 1) %>%
-  group_by(AA_pos) %>% 
-  summarise(path_count = sum(var))
+  dplyr::mutate(AA_pos = as.numeric(AA_pos)) %>% 
+  dplyr::select(-Transcript) %>% 
+  dplyr::mutate(AA_pos = as.numeric(AA_pos)) %>% 
+  dplyr::left_join(master.df %>% distinct(Transcript,Gene,AA_pos), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>% 
+  dplyr::left_join(all_exchanges.df %>% distinct(Domain,Gene,AA_pos), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>%  
+  dplyr::mutate(var = 1) %>%
+  dplyr::group_by(AA_pos) %>% 
+  dplyr::summarise(path_count = sum(var))
 
 Control_data.df <- read_delim(here("data", "gnomad_variants.txt"), delim = "\t") %>% 
-  select(-Transcript) %>% 
-  mutate(AA_ref = aaa(AA_ref),
+  dplyr::select(-Transcript) %>% 
+  dplyr::mutate(AA_ref = aaa(AA_ref),
          AA_alt = aaa(AA_alt)) %>% 
-  left_join(master.df %>% distinct(Gene,AA_pos,AA_pos), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>% 
-  mutate(var = 1) %>%
-  group_by(AA_pos) %>% 
-  summarise(con_count = sum(var))
+  dplyr::left_join(master.df %>% distinct(Gene,AA_pos,AA_pos), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>% 
+  dplyr::mutate(var = 1) %>%
+  dplyr::group_by(AA_pos) %>% 
+  dplyr::summarise(con_count = sum(var))
 
 ##enter the corresponding slc6a1 file here: SLC6A1_AF.txt in the pdb folder 
 structure_coordiantes.df<- read_delim(here("data", "pdb/SLC6A1_AF.txt"), delim = "\t") %>% 
-  rename(AA_pos = "Uniprot_position") %>% 
-  select(AA_pos,x,y,z) %>% 
-  filter(!is.na(x))
+  dplyr::rename(AA_pos = "Uniprot_position") %>% 
+  dplyr::select(AA_pos,x,y,z) %>% 
+  dplyr::filter(!is.na(x))
 
 
 Variant.df <- tibble(AA_pos = 1:599) %>% 
-  left_join(Patient_data.df) %>% 
-  left_join(Control_data.df) %>% 
-  left_join(structure_coordiantes.df) %>% 
-  filter(!is.na(x)) %>% 
+  dplyr::left_join(Patient_data.df) %>% 
+  dplyr::left_join(Control_data.df) %>% 
+  dplyr::left_join(structure_coordiantes.df) %>% 
+  dplyr::filter(!is.na(x)) %>% 
   replace(is.na(.), 0)
 
 
@@ -147,7 +148,7 @@ for(pos in 1:nrow(output.df)){
 }
 
 output.df %>% 
-  mutate(pvalue = fisher_pvalue,
+  dplyr::mutate(pvalue = fisher_pvalue,
          odds = fisher_odds,
          PER3D = ifelse(odds >1 & pvalue < 0.05,"PER3D","No-PER3D")) %>% 
   write_delim(here("data", "per3d.txt"), delim = "\t")
