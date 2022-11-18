@@ -703,68 +703,69 @@ shinyUI(
                      div(width = "100%",valueBoxOutput("geneBox3"))
                    ),
                    
-                   panel(heading = "Clinical Significance (Preliminary Use)", ##add report
-                         fluidRow(
-                           column(2,
-                                  radioButtons(
-                                    inputId = "var_origin",
-                                    label = h5(strong("Origin")), 
-                                    choices = c("de novo (confirmed)", "de novo (assumed)", "Inherited", "Unknown/Untested"),
-                                    selected = "Unknown/Untested"
-                                  )),
-                           
-                           column(2, 
-                                  radioButtons(
-                                    inputId = "var_phenotype",
-                                    label = h5(strong("Phenotype")),
-                                    choices = c("Neurodevelopmental Disorder (NDD) + Cortical Malformation", "NDD + Epilepsy or Cerebral Visual Impairment", 
-                                                "Unspecified NDD", "Other"),
-                                    selected = "Other"
-                                  )),
-                           br(),
-                           column(8,
-                                  fluidRow(
-                                    uiOutput(outputId = "ACMGUI_crit"),
-                                    box(title="Explanation", collapsible = TRUE, collapsed = TRUE, width = 12,
-                                        
-                                        div(style="background-color:#f7f7f7",
-                                            h4(style=" margin:5px; padding:10px","Very strong evidence"),  
-                                            div(style=" margin:5px; padding:10px",strong("PVS1"),textOutput("PVS1_text")),
-                                            
-                                            br(),
-                                            
-                                            h4(style=" margin:5px; padding:10px","Strong evidence"),  
-                                            div(style="display: flex;",
-                                                div(style="width:33%; margin:5px; padding:10px",strong("PS2/PM6"),textOutput("PS2PM6_text")),
-                                                div(style="width:33%; margin:5px; padding:10px",strong("PS3"), textOutput("PS3_text")),
-                                                div(style="width:33%; margin:5px; padding:10px",strong("PS4"), textOutput("PS4_text"))),
-                                            
-                                            br(),
-                                            
-                                            h4(style=" margin:5px; padding:10px","Moderate evidence"), 
-                                            div(style="display: flex;",
-                                                div(style="width:50%; margin:5px; padding:10px",strong("PM1"), textOutput("PM1_text")),
-                                                div(style="width:50%; margin:5px; padding:10px",strong("PM2"), textOutput("PM2_text"))),
-                                            
-                                            br(),
-                                            
-                                            h4(style=" margin:5px; padding:10px","Supporting evidence"), 
-                                            div(style="display: flex;",
-                                                div(style="width:50%; margin:5px; padding:10px;",
-                                                    strong("PP2"), textOutput("PP2_text")),
-                                                
-                                                div(style="width:50%; margin:5px; padding:10px",strong("PP3"), textOutput("PP3_text"))))
-                                        
-                                    )))),
-                         fluidRow(column(4,
-                                         downloadButton("report", label = "Generate Report"))), br(), 
-                         fluidRow(box(width=12,status = "danger", strong("Preliminary/incomplete use."), "Criteria for GRIN Registry variants 
-                                               were automatically 
-                                               annotated according to standard ", shiny::a(href="https://www.acmg.net/docs/Standards_Guidelines_for_the_Interpretation_of_Sequence_Variants.pdf", 
-                                                                                           "ACMG Variant Interpretation Guidelines") , "(GRIN1, GRIN2A, GRIN2D) or the ClinGen GRIN Expert Panel 
-                                                                                 Specifications to the ACMG/AMP Variant Interpretation Guidelines (GRIN2B, unpublished). They are yet incomplete and not to be 
-                                                                                 used in a medical context.", style = sub_style))
-                   ))))
+                   # panel(heading = "Clinical Significance (Preliminary Use)", ##add report
+                   #       fluidRow(
+                   #         column(2,
+                   #                radioButtons(
+                   #                  inputId = "var_origin",
+                   #                  label = h5(strong("Origin")), 
+                   #                  choices = c("de novo (confirmed)", "de novo (assumed)", "Inherited", "Unknown/Untested"),
+                   #                  selected = "Unknown/Untested"
+                   #                )),
+                   #         
+                   #         column(2, 
+                   #                radioButtons(
+                   #                  inputId = "var_phenotype",
+                   #                  label = h5(strong("Phenotype")),
+                   #                  choices = c("Neurodevelopmental Disorder (NDD) + Cortical Malformation", "NDD + Epilepsy or Cerebral Visual Impairment", 
+                   #                              "Unspecified NDD", "Other"),
+                   #                  selected = "Other"
+                   #                )),
+                   #         br(),
+                   #         column(8,
+                   #                fluidRow(
+                   #                  uiOutput(outputId = "ACMGUI_crit"),
+                   #                  box(title="Explanation", collapsible = TRUE, collapsed = TRUE, width = 12,
+                   #                      
+                   #                      div(style="background-color:#f7f7f7",
+                   #                          h4(style=" margin:5px; padding:10px","Very strong evidence"),  
+                   #                          div(style=" margin:5px; padding:10px",strong("PVS1"),textOutput("PVS1_text")),
+                   #                          
+                   #                          br(),
+                   #                          
+                   #                          h4(style=" margin:5px; padding:10px","Strong evidence"),  
+                   #                          div(style="display: flex;",
+                   #                              div(style="width:33%; margin:5px; padding:10px",strong("PS2/PM6"),textOutput("PS2PM6_text")),
+                   #                              div(style="width:33%; margin:5px; padding:10px",strong("PS3"), textOutput("PS3_text")),
+                   #                              div(style="width:33%; margin:5px; padding:10px",strong("PS4"), textOutput("PS4_text"))),
+                   #                          
+                   #                          br(),
+                   #                          
+                   #                          h4(style=" margin:5px; padding:10px","Moderate evidence"), 
+                   #                          div(style="display: flex;",
+                   #                              div(style="width:50%; margin:5px; padding:10px",strong("PM1"), textOutput("PM1_text")),
+                   #                              div(style="width:50%; margin:5px; padding:10px",strong("PM2"), textOutput("PM2_text"))),
+                   #                          
+                   #                          br(),
+                   #                          
+                   #                          h4(style=" margin:5px; padding:10px","Supporting evidence"), 
+                   #                          div(style="display: flex;",
+                   #                              div(style="width:50%; margin:5px; padding:10px;",
+                   #                                  strong("PP2"), textOutput("PP2_text")),
+                   #                              
+                   #                              div(style="width:50%; margin:5px; padding:10px",strong("PP3"), textOutput("PP3_text"))))
+                   #                      
+                   #                  )))),
+                   #       fluidRow(column(4,
+                   #                       downloadButton("report", label = "Generate Report"))), br(), 
+                   #       fluidRow(box(width=12,status = "danger", strong("Preliminary/incomplete use."), "Criteria for GRIN Registry variants 
+                   #                             were automatically 
+                   #                             annotated according to standard ", shiny::a(href="https://www.acmg.net/docs/Standards_Guidelines_for_the_Interpretation_of_Sequence_Variants.pdf", 
+                   #                                                                         "ACMG Variant Interpretation Guidelines") , "(GRIN1, GRIN2A, GRIN2D) or the ClinGen GRIN Expert Panel 
+                   #                                                               Specifications to the ACMG/AMP Variant Interpretation Guidelines (GRIN2B, unpublished). They are yet incomplete and not to be 
+                   #                                                               used in a medical context.", style = sub_style))
+                   # )
+                   )))
              ),
            fluidRow(
              column(12,style='padding:30px;',

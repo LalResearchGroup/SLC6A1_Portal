@@ -471,32 +471,51 @@ per3d.df <- read_delim("data/per3d.txt", delim = "\t") %>%
   dplyr::rename(pvalue_per2d  = "pvalue",
          odds_per2d  = "odds")
 
-#Load functional data mermer paper
-Functional_data_mermer.df <- read_delim("data/Functional_data_mermer.txt", delim = "\t") %>% #need to change object name (+mermer) to accommodate addition of biomarin functional dataset 
-  dplyr::rename(uptake = "GABA uptake (vs wt)",
-         surface_exp = "Surface expression (vs wt)",
-         total_exp = "Total expression (vs wt)",
-         relative_update_surface_exp = "Relative uptake/surface expression",
-         relative_surface_exp_tot_exp = "Relative surface expression/total expression") %>% 
-  filter(!is.na(AA_pos),
-         AA_alt != "X") %>% 
-  select(AA_pos,AA_alt,uptake,surface_exp,total_exp,relative_update_surface_exp,relative_surface_exp_tot_exp)
+# Adjust all_exchanges.df
+exchanges.df <- all_exchanges.df %>% 
+  mutate(AA_ref = a(AA_ref),
+         AA_alt = a(AA_alt)) %>% 
+  select(AA_pos, AA_ref, AA_alt, Vartype)
 
-Functional_data_biomarin.df <- read_csv("data/Functional_data_biomarin.csv") %>%
-  filter(!is.na(AA_pos),
-         AA_alt != "*") %>% 
+#Load functional data mermer paper
+Functional_data_mermer.df <- read_excel(here("data", "mermer_data.xlsx")) %>% 
+  mutate(uptake = Avg_PercentWT) %>% 
+  left_join(exchanges.df) %>% 
   select(AA_pos,AA_alt,uptake)
 
-#Load functional data biomarin paper
-# Functional_data_biomarin.df <- read_delim("data/Functional_data_biomarin.txt", delim = "\t") %>% 
+# Functional_data_mermer.df <- read_delim("data/Functional_data_mermer.txt", delim = "\t") %>% #need to change object name (+mermer) to accommodate addition of biomarin functional dataset 
 #   dplyr::rename(uptake = "GABA uptake (vs wt)",
-#                 surface_exp = "Surface expression (vs wt)",
-#                 total_exp = "Total expression (vs wt)",
-#                 relative_update_surface_exp = "Relative uptake/surface expression",
-#                 relative_surface_exp_tot_exp = "Relative surface expression/total expression") %>% 
+#          surface_exp = "Surface expression (vs wt)",
+#          total_exp = "Total expression (vs wt)",
+#          relative_update_surface_exp = "Relative uptake/surface expression",
+#          relative_surface_exp_tot_exp = "Relative surface expression/total expression") %>% 
 #   filter(!is.na(AA_pos),
 #          AA_alt != "X") %>% 
 #   select(AA_pos,AA_alt,uptake,surface_exp,total_exp,relative_update_surface_exp,relative_surface_exp_tot_exp)
+
+# Load functional data biomarin
+Functional_data_biomarin.df <- read_excel(here("data", "SLC6A1.supplement.tables.v03_edit.xlsx"), # edit includes a corrected variant that was mis-annotated c.929
+                                         sheet = "4-Results") %>% 
+  mutate(Gene = "SLC6A1") %>% 
+  mutate(AA_pos = str_extract(HGVSp,"[0-9]+") %>% as.numeric()) %>% 
+  mutate(AA_ref = str_extract(HGVSp, "^\\D+")) %>% 
+  mutate(AA_ref = gsub("^.*?\\.","", AA_ref)) %>% 
+  mutate(AA_alt = ifelse(`Variant impact` == "missense", sub(".*[0-9]", "", HGVSp), "NA")) %>% 
+  mutate(variant_impact = case_when(AA_alt == "*" ~ "stop gained",
+                                    AA_alt != "NA" ~ "missense",
+                                    `Variant impact` == "frameshift" ~ "frameshift",
+                                    `Variant impact` == "stop gained" ~ "stop gained",
+                                    `Variant impact` == "inframe indel" ~ "inframe indel",
+                                    `Variant impact` == "synonymous" ~ "synonymous")) %>% 
+  dplyr::rename(`Variant impact old` = `Variant impact`, `Variant impact` = variant_impact) %>% 
+  mutate(uptake = Avg_PercentWT/100) %>% 
+  mutate(AA_alt = a(AA_alt),
+         AA_ref = a(AA_ref)) %>% 
+  select(AA_pos,AA_alt,uptake)
+
+# All functional data n=184
+functional.df <- Functional_data_biomarin.df %>% 
+  bind_rows(Functional_data_mermer.df)
 
 #Load patient and control data 
 Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v8.txt", delim = "\t") %>% 
@@ -507,7 +526,7 @@ Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v8.txt", delim = "\t
          Epilepsy = "Epilepsy") %>% 
   left_join(master.df %>% distinct(Transcript,Gene,AA_pos), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>% 
   left_join(Domain_gene.df %>% distinct(Domain,Gene,AA_pos,Domain_color), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>%  
-  left_join(Functional_data_mermer.df, by = c("AA_pos" = "AA_pos","AA_alt" = "AA_alt")) %>% 
+  left_join(functional.df, by = c("AA_pos" = "AA_pos","AA_alt" = "AA_alt")) %>% 
   left_join(per3d.df) %>% 
   left_join(per2d.df) %>% 
   mutate(AA_ref = ifelse(!is.na(AA_ref),AA_ref,"XXX") %>% aaa(), ##warnings due to none matching aminoacids are fine 
