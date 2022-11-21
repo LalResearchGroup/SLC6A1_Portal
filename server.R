@@ -22,6 +22,7 @@ library(vembedr)
 library(shinyhelper)
 library(rsconnect)
 library(pacman)
+library(Rfast)
 
 ############## FUNCTIONS, STYLE ############
 
@@ -71,7 +72,30 @@ lolliplot_fill_scheme <-  #("Missense"="#D55E00","PTV"="#0072B2","Control" ="#00
 
 ######Functions######
 
+add_odds <- function(g1_in,g1_out,g2_in,g2_out,label_sel){
+  
+  out.df <- tibble()
+  
+  for(i in 1:length(g1_in)){
+    
+    fisher_out <- matrix(c(g1_in[i],g1_out[i],g2_in[i],g2_out[i]), ncol = 2) %>% fisher.test()
+    
+    out.df <-  rbind(out.df,
+                     tibble(odds = fisher_out$estimate, pvalue = fisher_out$p.value, lCI = fisher_out$conf.int[1], uCI = fisher_out$conf.int[2], label = label_sel[i]))
+    
+    
+  }
+  
+  # out.df <- out.df %>%
+  #   mutate(pvalue_adj = pvalue*nrow(.))
+  
+  return(out.df)
+  
+}
+
+
 #Basic Information 
+
 Phenotype_fac_1.fun <- function(select_gene,phenotype,color_sel){
   
   plot_ly(Patient_data.df %>% 
@@ -418,6 +442,104 @@ map_var_3d <- function(data,Gene_sel,gnomad_bool,pdb_sel,structure_coordinates,s
   return(modelo) 
 }     
 
+#functional data #####
+func_dist <- function(data.df,chosen_dist,title_sel,y_sel,color_sel){
+  
+  plot <- plot_ly(data.df %>% 
+                    filter(Vartype == "Missense") %>% 
+                    mutate(act_group = case_when(`GABA uptake (vs wt)`<10~"<10",
+                                                 `GABA uptake (vs wt)`<42.8~"10-42.8",
+                                                 `GABA uptake (vs wt)`>42.8~">42.8")) %>% 
+                    mutate(act_group = factor(act_group, levels = c("<10","10-42.8",">42.8"))) %>% 
+                    #act_group = factor(act_group, levels = c("<10","10-42.8",">42.8"))) %>% 
+                    dplyr::rename(dist = chosen_dist) ,
+                  x = ~act_group, y = ~dist,
+                  type = "box",
+                  boxpoints = "all",
+                  jitter = 0.2,
+                  pointpos = 0, 
+                  fillcolor = color_sel,
+                  marker = list(color = "black"),
+                  line = list(color = "black")) %>% 
+    #fillcolor = "khaki") %>% 
+    layout(title=title_sel, 
+           font=plotly_font,
+           xaxis = list(title="Average GABA uptake rate in relation to WT ( %)"),
+           margin = list(t = 50),
+           yaxis = list(title=y_sel)) %>% 
+  config(modeBarButtonsToRemove = goodbye, displaylogo = FALSE)
+
+return(plot)
+
+}
+
+
+map_func_var <- function(data.df,group_sel,color_sel){
+  
+  structure.df <- read_delim("data/pdb/7sk2_struc.txt",delim = "\t") %>%
+    mutate(Aminoacid = aaa(Aminoacid)) %>%
+    select(Uniprot_position,Aminoacid,Position_in_structure,gene,chain)
+  
+  
+  var_map.df <- data.df %>% 
+    mutate(act_group = case_when(`GABA uptake (vs wt)`<10~"<10",
+                                 `GABA uptake (vs wt)`<42.8~"10-42.8",
+                                 `GABA uptake (vs wt)`>42.8~">42.8")) %>% 
+    distinct(act_group,AA_pos,AA_ref) %>% 
+    left_join(structure.df,by = c("AA_pos" = "Uniprot_position","AA_ref" = "Aminoacid"))%>%
+    filter(act_group== group_sel) %>% 
+    filter(!is.na(Position_in_structure)) %>% 
+    distinct(Position_in_structure)
+  
+  
+  sub_color <- c("<10" = "red",
+                 "10-42.8" = "orange",
+                 ">42.8" = "yellow")
+  
+  sub_scale <- c(1,1)
+  struc_color <- "white"
+  
+  rot = 270
+  rot_axis = "x"
+  spin_axis = "vy"
+  
+  #Specify yourself- color of the cartoon per subunit
+  subunit_color <- c("wheat","white") #first color for GRIN1 second or GRIN2A
+  # 
+  # #Model for the protein complex
+  
+  modelo <- r3dmol(
+    viewer_spec = m_viewer_spec(
+      cartoonQuality = 10,
+      lowerZoomLimit = 50,
+      upperZoomLimit = 1000
+    )
+  )
+  
+  modelo <- modelo %>% m_add_model(data = "data/pdb/7sk2.pdb", format = "pdb")
+  
+  # Zoom to encompass the whole scene
+  modelo <-modelo %>% m_zoom_to() %>%
+    # Set color o cartoon representation
+    m_set_style(style = m_style_cartoon(color = struc_color)) %>% # select a color of the structure
+    # Set subunit colors
+    m_set_style(
+      sel = m_sel(chain = c("A")),
+      style = m_style_cartoon(color = subunit_color[2])
+    ) %>%
+    # visualize variants all
+    m_set_style(
+      sel = m_sel(resi = var_map.df %>% .$Position_in_structure,
+                  atom = "CA",
+                  chain = c("A")),
+      style = m_style_sphere(colorScheme = NULL,
+                             color = color_sel,
+                             scale = sub_scale[1])
+    )
+  
+  return(modelo)
+}
+
 ## substitute for seqinr function
 three_to_one_aa <- function(sequence){
   
@@ -430,6 +552,8 @@ three_to_one_aa <- function(sequence){
     return()
   
 }
+
+
 ############## DATA ############
 
 
@@ -452,7 +576,8 @@ master.df <- read_delim("data/master_table.txt", delim = "\t")
 Domain_gene.df <- master.df %>% 
   left_join(Domain_data.df %>% distinct(Aln_pos,Domain,Domain_color)) %>% 
   distinct(Gene,AA_pos,Domain,Domain_color) %>% 
-  ungroup()
+  ungroup() %>% 
+  mutate(Domain = Domain_color)
 
 
 #PER-2D
@@ -463,13 +588,13 @@ per2d_for_var_analysis.df <- read_delim("data/per2d_genewise.txt", delim = "\t")
 per2d.df <- read_delim("data/per2d_genewise.txt", delim = "\t") %>% 
   mutate(Hotzone_2D = ifelse(per == "PER","PER","No-PER")) %>% 
   select(Hotzone_2D,AA_pos,pvalue,odds) %>% 
-  dplyr::rename(pvalue_per3d = "pvalue",
-         odds_per3d = "odds")
+  dplyr::rename(pvalue_per2d = "pvalue",
+         odds_per2d = "odds")
 #PER-3D
 per3d.df <- read_delim("data/per3d.txt", delim = "\t") %>% 
   select(PER3D,AA_pos,pvalue,odds) %>% 
-  dplyr::rename(pvalue_per2d  = "pvalue",
-         odds_per2d  = "odds")
+  dplyr::rename(pvalue_per3d  = "pvalue",
+         odds_per3d  = "odds")
 
 # Adjust all_exchanges.df
 exchanges.df <- all_exchanges.df %>% 
@@ -477,45 +602,53 @@ exchanges.df <- all_exchanges.df %>%
          AA_alt = a(AA_alt)) %>% 
   select(AA_pos, AA_ref, AA_alt, Vartype)
 
+
+dist_imp_features.df <- read_delim("data/Distance_imp_features.txt",delim = "\t") %>% 
+  mutate(Vartype = "Missense") %>% 
+  mutate(AA_ref = aaa(AA_ref))
+
 #Load functional data mermer paper
-Functional_data_mermer.df <- read_excel(here("data", "mermer_data.xlsx")) %>% 
-  mutate(uptake = Avg_PercentWT) %>% 
-  left_join(exchanges.df) %>% 
-  select(AA_pos,AA_alt,uptake)
+biomarin.df <- read_csv("data/Functional_data_biomarin.csv") %>% 
+  dplyr::rename(cDNA_ref ="Ref",
+                cDNA_alt = "Alt",
+                cDNA_pos = "Pos",
+                Vartype = "variant_impact",
+                `GABA uptake (vs wt)` = "Avg_PercentWT") %>% 
+  select(Gene,cDNA_pos,cDNA_ref,cDNA_alt,AA_pos,AA_ref,AA_alt,Vartype,`GABA uptake (vs wt)`) %>%
+  mutate(Vartype = case_when(Vartype == "missense" ~"Missense",
+                             Vartype == "frameshift" ~"PTV",
+                             Vartype == "stop gained" ~"PTV",
+                             Vartype == "inframe indel" ~"Indel",
+                             Vartype == "synonymous" ~"Synonymous")) %>% 
+  mutate(
+    var_id = paste0(AA_ref,AA_pos,AA_alt))
 
-# Functional_data_mermer.df <- read_delim("data/Functional_data_mermer.txt", delim = "\t") %>% #need to change object name (+mermer) to accommodate addition of biomarin functional dataset 
-#   dplyr::rename(uptake = "GABA uptake (vs wt)",
-#          surface_exp = "Surface expression (vs wt)",
-#          total_exp = "Total expression (vs wt)",
-#          relative_update_surface_exp = "Relative uptake/surface expression",
-#          relative_surface_exp_tot_exp = "Relative surface expression/total expression") %>% 
-#   filter(!is.na(AA_pos),
-#          AA_alt != "X") %>% 
-#   select(AA_pos,AA_alt,uptake,surface_exp,total_exp,relative_update_surface_exp,relative_surface_exp_tot_exp)
 
-# Load functional data biomarin
-Functional_data_biomarin.df <- read_excel(here("data", "SLC6A1.supplement.tables.v03_edit.xlsx"), # edit includes a corrected variant that was mis-annotated c.929
-                                         sheet = "4-Results") %>% 
-  mutate(Gene = "SLC6A1") %>% 
-  mutate(AA_pos = str_extract(HGVSp,"[0-9]+") %>% as.numeric()) %>% 
-  mutate(AA_ref = str_extract(HGVSp, "^\\D+")) %>% 
-  mutate(AA_ref = gsub("^.*?\\.","", AA_ref)) %>% 
-  mutate(AA_alt = ifelse(`Variant impact` == "missense", sub(".*[0-9]", "", HGVSp), "NA")) %>% 
-  mutate(variant_impact = case_when(AA_alt == "*" ~ "stop gained",
-                                    AA_alt != "NA" ~ "missense",
-                                    `Variant impact` == "frameshift" ~ "frameshift",
-                                    `Variant impact` == "stop gained" ~ "stop gained",
-                                    `Variant impact` == "inframe indel" ~ "inframe indel",
-                                    `Variant impact` == "synonymous" ~ "synonymous")) %>% 
-  dplyr::rename(`Variant impact old` = `Variant impact`, `Variant impact` = variant_impact) %>% 
-  mutate(uptake = Avg_PercentWT/100) %>% 
-  mutate(AA_alt = a(AA_alt),
-         AA_ref = a(AA_ref)) %>% 
-  select(AA_pos,AA_alt,uptake)
+mermer.df <- read_delim("data/Functional_data_mermer.txt", delim = "\t") %>%
+  mutate(Vartype = ifelse(AA_alt != "X","Missense","PTV"),
+         cDNA_alt = NA,
+         AA_ref = aaa(AA_ref),
+         AA_alt = aaa(AA_alt)) %>% 
+  select(Gene,cDNA_pos,cDNA_ref,cDNA_alt,AA_pos,AA_ref,AA_alt,Vartype,`GABA uptake (vs wt)`,
+         `Surface expression (vs wt)`,
+         `Total expression (vs wt)`,
+         `Relative uptake/surface expression`,
+         `Relative surface expression/total expression`) %>% 
+  mutate(var_id = paste0(AA_ref,AA_pos,AA_alt))
 
-# All functional data n=184
-functional.df <- Functional_data_biomarin.df %>% 
-  bind_rows(Functional_data_mermer.df)
+
+functional.df <- biomarin.df %>% 
+  rbind(mermer.df %>% filter(!(var_id %in% biomarin.df$var_id)) %>% 
+          select(-`Surface expression (vs wt)`, -`Total expression (vs wt)`,-`Relative uptake/surface expression`,-`Relative surface expression/total expression`)) %>% 
+  left_join(mermer.df %>% select(var_id, `Surface expression (vs wt)`, `Total expression (vs wt)`,`Relative uptake/surface expression`,`Relative surface expression/total expression`), by = c("var_id" = "var_id")) %>% 
+  select(AA_pos,AA_ref,AA_alt,Vartype,`Surface expression (vs wt)`, `Total expression (vs wt)`,`Relative uptake/surface expression`,`Relative surface expression/total expression`,`GABA uptake (vs wt)`)
+
+
+functional_only.df <- functional.df%>% 
+  left_join(Domain_gene.df %>% distinct(Domain,Gene,AA_pos,Domain_color), by = c("AA_pos" = "AA_pos")) %>%
+  left_join(per3d.df) %>% 
+  left_join(per2d.df) %>% 
+  left_join(dist_imp_features.df)
 
 #Load patient and control data 
 Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v8.txt", delim = "\t") %>% 
@@ -525,11 +658,11 @@ Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v8.txt", delim = "\t
   dplyr::rename(Sz_onset = "Age at seizure onset (months)",
          Epilepsy = "Epilepsy") %>% 
   left_join(master.df %>% distinct(Transcript,Gene,AA_pos), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>% 
-  left_join(Domain_gene.df %>% distinct(Domain,Gene,AA_pos,Domain_color), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>%  
-  left_join(functional.df, by = c("AA_pos" = "AA_pos","AA_alt" = "AA_alt")) %>% 
+  left_join(Domain_gene.df %>% distinct(Domain,Gene,AA_pos,Domain_color), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>%
   left_join(per3d.df) %>% 
   left_join(per2d.df) %>% 
   mutate(AA_ref = ifelse(!is.na(AA_ref),AA_ref,"XXX") %>% aaa(), ##warnings due to none matching aminoacids are fine 
+         AA_alt = ifelse(!is.na(AA_alt),AA_alt,"XXX") %>% aaa(),
          #AA_alt_complex = ifelse(Vartype == "Missense",AA_alt,AA_alt_complex),
          cDNA = ifelse(!is.na(cDNA_pos), paste0("c.",cDNA_pos,cDNA_ref,">",cDNA_alt), "Not available"),
          #Protein = paste0("p.",AA_ref,AA_pos,AA_alt_complex),
@@ -539,11 +672,12 @@ Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v8.txt", delim = "\t
   dplyr::rename(Autism = "Autistic traits",
          Epilepsy_syndrome = "Epilepsy Syndrome Classification",
          ID_after_sz_onset = "Cognitive Level AFTER Seizure Onset") %>% 
-  mutate(Autism = ifelse(is.na(Autism),NA,Autism)) 
+  mutate(Autism = ifelse(is.na(Autism),NA,Autism)) %>% 
+  left_join(functional.df %>% filter(Vartype == "Missense"), by = c("AA_pos" = "AA_pos","AA_alt" = "AA_alt","AA_ref" = "AA_ref","Vartype" = "Vartype")) %>% 
+  left_join(dist_imp_features.df)
 
 Patient_data_missense_only.df <- Patient_data.df %>% 
-  filter(Vartype == "Missense") %>% 
-  mutate(AA_alt = three_to_one_aa(AA_alt))
+  filter(Vartype == "Missense")
 
 Control_data.df <- read_delim("data/gnomad_variants.txt", delim = "\t") %>% 
   mutate(AA_ref = aaa(AA_ref),
@@ -615,6 +749,8 @@ clinvar.df <- read_delim("data/Clinvar_links_SLC6A1.txt", delim = "\t")
   
   pdb_sel_gene4 = "data/pdb/SCN2A_model.pdb1"
   structure_coordinates_gene4 <- "data/pdb/SCN8A_6j8e_structure_coordinates.txt"
+  
+  func_colors <- c(`GABA uptake (vs wt)` = "khaki",`Total expression (vs wt)` = "indianred",`Surface expression (vs wt)` = "paleturquoise")
 
 ############### SERVER ###############
 shinyServer(function(input, output, session) {
@@ -944,7 +1080,7 @@ shinyServer(function(input, output, session) {
     z <- Patient_data_missense_only.df %>%
       filter(case_when(
         input$compareButtons =="Variant Type" ~ Vartype ==varFilterInput$data$Vartype,
-        input$compareButtons =="Protein region" ~ Domain==varFilterInput$data$Domain,
+        input$compareButtons =="Protein region" ~ Domain_color==varFilterInput$data$Domain_color,
         #input$compareButtons == "Functional Consequence" ~ CALL == varFilterInput$data$CALL,
         input$compareButtons =="Amino Acid Position" ~ AA_pos==varFilterInput$data$AA_pos)) %>%
       select(Transcript,Gene, Domain, cDNA, Protein, Inheritance, Epilepsy,Sz_onset,Autism,Published_in)
@@ -1016,6 +1152,254 @@ shinyServer(function(input, output, session) {
         list(x = 0.9 , y = 1.1, text = "Seizure onset", showarrow = F, xref='paper', yref='paper'))
       )
   })
+  
+  output$compare_act <- renderPlotly({
+    
+    var_ex.df <- Patient_data_missense_only.df %>%
+      filter(AA_pos == varFilterInput$data$AA_pos, AA_alt == varFilterInput$data$AA_alt) %>% #"varFilterInput$data$AA_pos)
+      filter(!is.na(`GABA uptake (vs wt)`)) %>% 
+      mutate(label = "Same variant")
+    
+    var_pos.df <- Patient_data_missense_only.df %>%
+      filter(AA_pos == varFilterInput$data$AA_pos) %>% #"varFilterInput$data$AA_pos)
+      filter(!is.na(`GABA uptake (vs wt)`)) %>% 
+      mutate(label = "Same position")
+    var_domain.df <- Patient_data_missense_only.df %>%
+      filter(Domain_color==varFilterInput$data$Domain_color) %>% #varFilterInput$data$Domain_color)
+      filter(!is.na(`GABA uptake (vs wt)`)) %>% 
+      mutate(label = "Same domain")
+    
+    var_all.df <- rbind(var_ex.df,var_pos.df,var_domain.df)
+    
+    validate(
+      need(nrow(var_all.df) >0,
+           "There is no data that matches your filters.")) 
+    
+    plot <- plot_ly() %>%
+      add_boxplot(data = var_all.df,
+                  x = ~label,
+                  y = ~`GABA uptake (vs wt)`,
+                  jitter = 0.3,
+                  #name = "Seizure onset",
+                  boxpoints = "all",
+                  pointpos = 0,
+                  #color =I("gray"),
+                  marker = list (color = 'gray',
+                                 line = list(color ="black", width = 1)),
+                  line = list(color ="black", width = 2)) 
+    
+    if(var_all.df$label %>% unique() %>% length() == 3){
+      plot <- plot %>% 
+        layout(yaxis = list(title = "GABA uptake (vs wt)"),
+               xaxis = list(title = "Variants located at"))
+    } else if(var_all.df$label %>% unique() %>% length() == 2){
+      plot <- plot %>% 
+        layout(yaxis = list(title = "GABA uptake (vs wt)"),
+               xaxis = list(title = "Variants located at"),
+               margin = list(r = 200, l = 200))
+    } else{
+      plot <- plot %>% 
+        layout(yaxis = list(title = "GABA uptake (vs wt)"),
+               xaxis = list(title = "Variants located at"),
+               margin = list(r = 350, l = 350))
+    }
+    
+  })
+  
+  output$Var_analysis_compare_var <- renderR3dmol({
+    
+    
+    structure.df <- read_delim("data/pdb/7sk2_struc.txt",delim = "\t") %>%
+      mutate(Aminoacid = aaa(Aminoacid)) %>%
+      select(Uniprot_position,Aminoacid,Position_in_structure,gene,chain)
+    
+    
+    pat_var.df <- Patient_data_missense_only.df %>% 
+      left_join(structure.df,by = c("AA_pos" = "Uniprot_position"))%>%
+      filter(!is.na(Position_in_structure)) %>% 
+      .$Position_in_structure %>% unique()
+    
+    con_var.df <- Control_data.df %>% 
+      filter(Vartype == "Missense") %>% 
+      left_join(structure.df,by = c("AA_pos" = "Uniprot_position"))%>%
+      filter(!is.na(Position_in_structure)) %>% 
+      .$Position_in_structure %>% unique()
+    
+    sel_var <- all_exchanges.df %>% 
+      filter(AA_pos == varFilterInput$data$AA_pos) %>% 
+      left_join(structure.df,by = c("AA_pos" = "Uniprot_position"))%>%
+      filter(!is.na(Position_in_structure)) %>% 
+      .$Position_in_structure %>% unique()
+
+    sub_scale <- c(1,1)
+    struc_color <- "white"
+    
+    rot = 270
+    rot_axis = "x"
+    spin_axis = "vy"
+    
+    
+    
+    modelo <- r3dmol(
+      viewer_spec = m_viewer_spec(
+        cartoonQuality = 10,
+        lowerZoomLimit = 50,
+        upperZoomLimit = 1000
+      )
+    )
+    
+    modelo <- modelo %>% m_add_model(data = "data/pdb/7sk2.pdb", format = "pdb")
+    
+    if(length(sel_var) != 0){
+      # Zoom to encompass the whole scene
+      modelo <-modelo %>% m_zoom_to() %>%
+        # Set color o cartoon representation
+        m_set_style(style = m_style_cartoon(color = struc_color)) %>% # select a color of the structure
+        # Set subunit colors
+        m_set_style(
+          sel = m_sel(chain = c("A")),
+          style = m_style_cartoon(color = "white")
+        ) %>%
+        # visualize variants all
+        m_set_style(
+          sel = m_sel(resi = pat_var.df,
+                      atom = "CA",
+                      chain = c("A")),
+          style = m_style_sphere(colorScheme = NULL,
+                                 color = "red",
+                                 scale = 0.8)
+        ) %>% 
+        m_set_style(
+          sel = m_sel(resi = con_var.df,
+                      atom = "CA",
+                      chain = c("A")),
+          style = m_style_sphere(colorScheme = NULL,
+                                 color = "black",
+                                 scale = 0.8)
+        ) %>% 
+        m_set_style(
+          sel = m_sel(resi = sel_var,
+                      atom = "CA",
+                      chain = c("A")),
+          style = m_style_sphere(colorScheme = NULL,
+                                 color = "magenta",
+                                 scale = 1.8)
+        ) 
+    }else{
+      
+      modelo <-modelo %>% m_zoom_to() %>%
+        # Set color o cartoon representation
+        m_set_style(style = m_style_cartoon(color = struc_color)) %>% # select a color of the structure
+        # Set subunit colors
+        m_set_style(
+          sel = m_sel(chain = c("A")),
+          style = m_style_cartoon(color = "white")
+        )
+      
+    }
+    
+    return(modelo)
+    
+  })
+  
+  output$Var_analyis_hotzone <- renderR3dmol({
+  
+    structure.df <- read_delim("data/pdb/7sk2_struc.txt",delim = "\t") %>%
+      mutate(Aminoacid = aaa(Aminoacid)) %>%
+      select(Uniprot_position,Aminoacid,Position_in_structure,gene,chain)
+    
+    
+    color_map.df <- read_delim("data/pdb/activity_bubble.txt",delim = "\t") %>% 
+      left_join(structure.df,by = c("AA_pos" = "Uniprot_position"))%>%
+      filter(!is.na(Position_in_structure)) %>% 
+      distinct(Position_in_structure,act_group)
+    
+    sel_var <- all_exchanges.df %>% 
+      filter(AA_pos %in% varFilterInput$data$AA_pos) %>% 
+      left_join(structure.df,by = c("AA_pos" = "Uniprot_position"))%>%
+      filter(!is.na(Position_in_structure)) %>% 
+      .$Position_in_structure %>% unique()
+    
+    sub_scale <- c(1,1)
+    struc_color <- "white"
+    
+    rot = 270
+    rot_axis = "x"
+    spin_axis = "vy"
+    
+    modelo <- r3dmol(
+      viewer_spec = m_viewer_spec(
+        cartoonQuality = 10,
+        lowerZoomLimit = 50,
+        upperZoomLimit = 1000
+      )
+    )
+    
+    modelo <- modelo %>% m_add_model(data = "data/pdb/7sk2.pdb", format = "pdb")
+    
+    if(length(sel_var) != 0){
+      
+      modelo <-modelo %>% m_zoom_to() %>%
+        # Set color o cartoon representation
+        m_set_style(style = m_style_cartoon(color = struc_color)) %>% # select a color of the structure
+        # Set subunit colors
+        m_set_style(
+          sel = m_sel(chain = c("A")),
+          style = m_style_cartoon(color = "white")
+        ) %>%
+        # visualize variants all
+        m_set_style(
+          sel = m_sel(resi = color_map.df %>% filter(act_group == "<10") %>% .$Position_in_structure,
+                      atom = "CA",
+                      chain = c("A")),
+          style = m_style_cartoon(color = "red")
+        ) %>% 
+        m_set_style(
+          sel = m_sel(resi = color_map.df %>% filter(act_group == ">42.8") %>% .$Position_in_structure,
+                      atom = "CA",
+                      chain = c("A")),
+          style = m_style_cartoon(color = "yellow")
+        )%>% 
+        m_set_style(
+          sel = m_sel(resi = sel_var,
+                      atom = "CA",
+                      chain = c("A")),
+          style = m_style_sphere(colorScheme = NULL,
+                                 color = "magenta",
+                                 scale = 1.8)
+        ) 
+      
+      
+    } else{
+      
+      modelo <-modelo %>% m_zoom_to() %>%
+        # Set color o cartoon representation
+        m_set_style(style = m_style_cartoon(color = struc_color)) %>% # select a color of the structure
+        # Set subunit colors
+        m_set_style(
+          sel = m_sel(chain = c("A")),
+          style = m_style_cartoon(color = "white")
+        ) %>%
+        # visualize variants all
+        m_set_style(
+          sel = m_sel(resi = color_map.df %>% filter(act_group == "<10") %>% .$Position_in_structure,
+                      atom = "CA",
+                      chain = c("A")),
+          style = m_style_cartoon(color = "red")
+        ) %>% 
+        m_set_style(
+          sel = m_sel(resi = color_map.df %>% filter(act_group == ">42.8") %>% .$Position_in_structure,
+                      atom = "CA",
+                      chain = c("A")),
+          style = m_style_cartoon(color = "yellow")
+        )
+      
+    }
+    
+    return(modelo)
+    
+  })
+  
 
   output$Var_analyis_paraz <- renderPlotly({
     
@@ -1234,6 +1618,20 @@ shinyServer(function(input, output, session) {
     vars = c("Vartype",  "AA_alt", "Domain","Epilepsy_syndrome","Autism","ID_after_sz_onset", "Hotzone_2D","PER3D")
   )
   
+  res_mod_control <- callModule(
+    module = selectizeGroupServer,
+    id = "research-filters",
+    data = Control_data.df,
+    vars = c("Vartype",  "AA_alt", "Domain","Hotzone_2D","PER3D")
+  )
+  
+  res_mod_functional <- callModule(
+    module = selectizeGroupServer,
+    id = "research-filters",
+    data = functional_only.df,
+    vars = c("Vartype",  "AA_alt", "Domain","Hotzone_2D","PER3D")
+  )
+  
   output$filtered_n <- renderText({
     x <- nrow(res_mod())
     x <- paste("Number of individuals:", x)
@@ -1279,7 +1677,6 @@ shinyServer(function(input, output, session) {
       dplyr::group_by(Gene,Domain,Domain_color) %>% 
       dplyr::summarise(start = min(AA_pos),
                 end = max(AA_pos)) 
-    
 
     g <- ggplot(data=all_exchanges.df %>% 
                   distinct(AA_pos,Gene,Domain,Domain_color) %>% 
@@ -1355,7 +1752,43 @@ shinyServer(function(input, output, session) {
   })
   
   
-  output$threeDmolGene_all <- renderR3dmol({
+  output$test_struc <- renderR3dmol({
+    
+    r3dmol(
+      viewer_spec = m_viewer_spec(
+        cartoonQuality = 10,
+        lowerZoomLimit = 50,
+        upperZoomLimit = 350
+      ),
+      #id = "demo",
+      #elementId = "demo"
+    ) %>%
+      # Add model to scene
+      m_add_model(data = pdb_6zsl, format = "pdb") %>%
+      # Zoom to encompass the whole scene
+      m_zoom_to() %>%
+      # Set style of structures
+      m_set_style(style = m_style_cartoon(color = "#00cc96")) %>%
+      # Set style of specific selection (selecting by secondary)
+      m_set_style(
+        sel = m_sel(ss = "s"),
+        style = m_style_cartoon(color = "#636efa", arrows = TRUE)
+      ) %>%
+      # Style the alpha helix
+      m_set_style(
+        sel = m_sel(ss = "h"), # Style alpha helix
+        style = m_style_cartoon(color = "#ff7f0e")
+      ) %>%
+      # Rotate the scene by given angle on given axis
+      m_rotate(angle = 90, axis = "y") %>%
+      # Animate the scene by spinning it
+      m_spin()
+    
+    
+  })
+  
+  output$threeDmolGene_all_new <- renderR3dmol({
+    
     
     variant.df <- res_mod() %>%
       filter(Vartype == "Missense") %>%
@@ -1364,45 +1797,51 @@ shinyServer(function(input, output, session) {
       dplyr::summarise(n_occ = n()) %>%
       select(AA_pos,AA_ref,n_occ,Gene)
     
-    gnomad.df <- Control_data.df %>%
+    
+    validate(need(
+      nrow(variant.df) >0,
+      "There is no data that matches your filters."
+    ))
+
+    gnomad.df <- res_mod_control() %>%
       dplyr::group_by(AA_pos,AA_ref,Gene) %>%
       dplyr::summarise(n_occ = n()) %>%
       select(AA_pos,AA_ref,n_occ,Gene)
-    
-    structure.df <- read_delim("data/pdb/SLC6A1_AF.txt",delim = "\t") %>%
+
+    structure.df <- read_delim("data/pdb/7sk2_struc.txt",delim = "\t") %>%
       mutate(Aminoacid = aaa(Aminoacid)) %>%
       select(Uniprot_position,Aminoacid,Position_in_structure,gene,chain)
-    
-    
+
+
     variant.df <- variant.df %>%
       left_join(structure.df,by = c("AA_pos" = "Uniprot_position","AA_ref" = "Aminoacid","Gene" = "gene")) %>%
       mutate(struc_cov = ifelse(is.na(Position_in_structure),"no","yes")) %>%  #this column constraints the information whether a variant can be displayed on the structure or not
-      filter(struc_cov == "yes") %>% 
-      distinct(Position_in_structure,Gene) %>% 
-      dplyr::group_by(Position_in_structure) %>% 
+      filter(struc_cov == "yes") %>%
+      distinct(Position_in_structure,Gene) %>%
+      dplyr::group_by(Position_in_structure) %>%
       dplyr::summarise(var_mut = ifelse(n() >1,"mutiple",Gene))
-    
+
     gnomad.df <- gnomad.df %>%
       left_join(structure.df,by = c("AA_pos" = "Uniprot_position","AA_ref" = "Aminoacid","Gene" = "gene")) %>%
       mutate(struc_cov = ifelse(is.na(Position_in_structure),"no","yes")) %>%  #this column constraints the information whether a variant can be displayed on the structure or not
-      filter(struc_cov == "yes") %>% 
-      distinct(Position_in_structure,Gene) %>% 
-      dplyr::group_by(Position_in_structure) %>% 
+      filter(struc_cov == "yes") %>%
+      distinct(Position_in_structure,Gene) %>%
+      dplyr::group_by(Position_in_structure) %>%
       dplyr::summarise(var_mut = ifelse(n() >1,"mutiple",Gene))
-    
-    
+
+
     sub_color <- c("red","black")
     sub_scale <- c(1.2,0.8)
     struc_color <- "white"
-    
+
     rot = 270
     rot_axis = "x"
     spin_axis = "vy"
-    
+
     #Specify yourself- color of the cartoon per subunit
     subunit_color <- c("wheat","white") #first color for GRIN1 second or GRIN2A
-    
-    #Model for the protein complex
+    # 
+    # #Model for the protein complex
     
     modelo <- r3dmol(
       viewer_spec = m_viewer_spec(
@@ -1412,7 +1851,7 @@ shinyServer(function(input, output, session) {
       )
     )
     
-    modelo <- modelo %>% m_add_model(data = "data/pdb/SLC6A1.pdb", format = "pdb")
+    modelo <- modelo %>% m_add_model(data = "data/pdb/7sk2.pdb", format = "pdb")
     
     # Zoom to encompass the whole scene
     modelo <-modelo %>% m_zoom_to() %>%
@@ -1431,12 +1870,12 @@ shinyServer(function(input, output, session) {
         style = m_style_sphere(colorScheme = NULL,
                                color = sub_color[1],
                                scale = sub_scale[1])
-      ) 
-    
-    
-    
+      )
+
+
+
     if  (input$gnomad_m == TRUE) {
-      
+
       modelo <- modelo %>% m_set_style(
         sel = m_sel(resi = gnomad.df$Position_in_structure,
                     atom = "CA",
@@ -1444,9 +1883,84 @@ shinyServer(function(input, output, session) {
         style = m_style_sphere(colorScheme = NULL,
                                color = sub_color[2],
                                scale = sub_scale[2]))
-      
+
     }
     return(modelo)
+    
+  })
+  
+  ##domain ernichment 
+  
+  output$domain_enrichment_pat_pop <- renderPlotly({
+    
+    
+    validate(need(
+      nrow(res_mod()) >0,
+      "There is no data that matches your filters."
+    ))
+    
+    
+    pat_con.df <- rbind(res_mod() %>% 
+                          filter(Vartype == "Missense") %>% 
+                          select(AA_pos,AA_ref,AA_alt) %>% 
+                          #distinct() %>% 
+                          mutate(label = "Patient"),
+                        res_mod_control() %>% 
+                          filter(Vartype == "Missense") %>% 
+                          select(AA_pos,AA_ref,AA_alt) %>% 
+                          distinct() %>% 
+                          mutate(label = "Control")) %>% 
+      left_join(Domain_gene.df) %>% 
+      group_by(Domain_color,label) %>% 
+      dplyr::summarise(n = n()) %>% 
+      ungroup() %>% 
+      group_by(label) %>% 
+      dplyr::mutate(n_out = sum(n)-n) %>% 
+      ungroup() %>% 
+      pivot_wider(values_from = c(n, n_out),names_from = label) %>% 
+      filter(!is.na(n_Patient),
+             !is.na(n_out_Patient),
+             !is.na(n_Control),
+             !is.na(n_out_Control))
+    
+    validate(need(
+      nrow(pat_con.df) >1,
+      "There is not sufficient data that matches your filters."
+    ))
+    
+    
+    
+    domain_order <- c("N-terminal","TM1/6","Linker","TMD-other","Scaffold","EL2","EL3","EL4","C-terminal")
+    domain_order <- domain_order[which(domain_order %in% pat_con.df$Domain_color)]
+    
+    ggplot_p <- add_odds(pat_con.df$n_Patient,pat_con.df$n_out_Patient,pat_con.df$n_Control,pat_con.df$n_out_Control,pat_con.df$Domain_color) %>% 
+      mutate(sig = ifelse(pvalue>0.05,"n","y")) %>% 
+      mutate(label = factor(label, levels = domain_order)) %>%   
+      arrange(label) %>% 
+      assign("save",.,envir = .GlobalEnv) %>% 
+      ggplot(aes(y = odds, x = label,text = paste0("OR = ",round(odds ,2),"\nP-value = ",format(pvalue,digits = 2,scientific = T))))+
+      geom_point(aes(color = sig), size = 3)+
+      geom_errorbar(aes(ymin = lCI, ymax = uCI), size = 1, width = 0.1)+
+      theme_classic(base_size = 15)+
+      scale_y_log10()+
+      geom_hline(aes(yintercept = 1),linetype = "dashed")+
+      scale_color_manual(values = c("black","red"))+
+      theme(legend.position = "none",
+            panel.border = element_blank(),
+            axis.text = element_text(color = "black"),
+            axis.text.x = element_text(angle = 45, hjust = 1),
+            axis.ticks.x = element_line(color = "black", size = 1),
+            #axis.text.y = element_blank(),
+            axis.ticks.y = element_blank(),
+            axis.title = element_text(color = "black"),
+            plot.title = element_text(color = "black", hjust = 0.5))+
+      labs(x = "",
+           y = "Patient variant enrichment OR",
+           title = "")+
+      coord_cartesian(ylim = c(min(save$lCI)*0.8,max(save$uCI)*1.2))
+    
+    ggplotly(ggplot_p, tooltip = "text")
+    
     
   })
 
@@ -1585,46 +2099,398 @@ shinyServer(function(input, output, session) {
     
   })
 
-  ### Functional Interface
+  ### Research Functional Interface #####
+  
+  #structure 
+  
+  output$research_hotzone <- renderR3dmol({
+    
+    
+    structure.df <- read_delim("data/pdb/7sk2_struc.txt",delim = "\t") %>%
+      mutate(Aminoacid = aaa(Aminoacid)) %>%
+      select(Uniprot_position,Aminoacid,Position_in_structure,gene,chain)
+    
+    
+    color_map.df <- read_delim("data/pdb/activity_bubble.txt",delim = "\t") %>% 
+      left_join(structure.df,by = c("AA_pos" = "Uniprot_position"))%>%
+      filter(!is.na(Position_in_structure)) %>% 
+      distinct(Position_in_structure,act_group)
+    
+    
+    sub_scale <- c(1,1)
+    struc_color <- "white"
+    
+    rot = 270
+    rot_axis = "x"
+    spin_axis = "vy"
+    
+    
+    
+    modelo <- r3dmol(
+      viewer_spec = m_viewer_spec(
+        cartoonQuality = 10,
+        lowerZoomLimit = 50,
+        upperZoomLimit = 1000
+      )
+    )
+    
+    modelo <- modelo %>% m_add_model(data = "data/pdb/7sk2.pdb", format = "pdb")
+    
+    # Zoom to encompass the whole scene
+    modelo <-modelo %>% m_zoom_to() %>%
+      # Set color o cartoon representation
+      m_set_style(style = m_style_cartoon(color = struc_color)) %>% # select a color of the structure
+      # Set subunit colors
+      m_set_style(
+        sel = m_sel(chain = c("A")),
+        style = m_style_cartoon(color = "white")
+      ) %>%
+      # visualize variants all
+      m_set_style(
+        sel = m_sel(resi = color_map.df %>% filter(act_group == "<10") %>% .$Position_in_structure,
+                    atom = "CA",
+                    chain = c("A")),
+        style = m_style_cartoon(color = "red")
+      ) %>% 
+      m_set_style(
+        sel = m_sel(resi = color_map.df %>% filter(act_group == ">42.8") %>% .$Position_in_structure,
+                    atom = "CA",
+                    chain = c("A")),
+        style = m_style_cartoon(color = "yellow")
+      )
+    
+    return(modelo)
+    
+  })
+  
+  
+  output$research_dist_struc <- renderR3dmol({
+    
+    structure.df <- read_delim("data/pdb/7sk2_struc.txt",delim = "\t") %>%
+      mutate(Aminoacid = aaa(Aminoacid)) %>%
+      select(Uniprot_position,Aminoacid,Position_in_structure,gene,chain)
+    
+    
+    color_map.df <- read_delim("data/pdb/activity_bubble.txt",delim = "\t") %>% 
+      left_join(structure.df,by = c("AA_pos" = "Uniprot_position"))%>%
+      filter(!is.na(Position_in_structure)) %>% 
+      distinct(Position_in_structure,act_group)
+    
+    Tm1_res <- Domain_gene.df %>% 
+      filter(Domain_color == "TM1/6",
+             AA_pos < 200) %>% 
+      .$AA_pos
+    
+    Tm6_res <- Domain_gene.df %>% 
+      filter(Domain_color == "TM1/6",
+             AA_pos > 200) %>% 
+      .$AA_pos
+    
+    
+    sub_scale <- c(1,1)
+    struc_color <- "white"
+    
+    rot = 270
+    rot_axis = "x"
+    spin_axis = "vy"
+    
+    
+    
+    modelo <- r3dmol(
+      viewer_spec = m_viewer_spec(
+        cartoonQuality = 10,
+        lowerZoomLimit = 50,
+        upperZoomLimit = 1000
+      )
+    )
+    
+    modelo <- modelo %>% m_add_model(data = "data/pdb/GAT1_axis_pdb.pdb", format = "pdb")
+    
+    # Zoom to encompass the whole scene
+    modelo <-modelo %>% m_zoom_to() %>%
+      # Set color o cartoon representation
+      m_set_style(style = m_style_cartoon(color = struc_color)) %>% # select a color of the structure
+      # Set subunit colors
+      m_set_style(
+        sel = m_sel(chain = c("A")),
+        style = m_style_cartoon(color = "white")
+      ) %>%
+      # visualize variants all
+      m_set_style(
+        sel = m_sel(resi = 601,
+                    chain = c("A")),
+        style = m_style_stick(colorScheme = NULL,
+                              color = "mediumvioletred")
+      ) %>% 
+      m_set_style(
+        sel = m_sel(resi = 0),
+        style = m_style_sphere(colorScheme = NULL,
+                               scale = 0.5,
+                               color = "mediumseagreen")
+      ) %>% 
+      m_set_style(
+        sel = m_sel(resi = Tm1_res),
+        style = m_style_cartoon(
+          color = "lightskyblue")
+      ) %>% 
+      m_set_style(
+        sel = m_sel(resi = Tm6_res),
+        style = m_style_cartoon(
+          color = "sandybrown")
+      )
+    modelo 
+    
+    return(modelo)
+    
+    
+  })
+  
+  output$research_var_map1 <- renderR3dmol({
+    
+    if(input$pat_only == TRUE){
+      
+      data.df <- res_mod()
+      y_label <- "Number of patients"
+      titel_label <- "Functionally tested patients per domain"
+      
+    }else{
+      
+      data.df <- res_mod_functional()
+      y_label <- "Number of variants"
+      titel_label <- "Functionally tested variants per domain"
+    }
+    
+    
+    map_func_var(data.df,"<10","red")
+    
+  })
+  
+  output$research_var_map2 <- renderR3dmol({
+    
+    if(input$pat_only == TRUE){
+      
+      data.df <- res_mod()
+      y_label <- "Number of patients"
+      titel_label <- "Functionally tested patients per domain"
+      
+    }else{
+      
+      data.df <- res_mod_functional()
+      y_label <- "Number of variants"
+      titel_label <- "Functionally tested variants per domain"
+    }
+    
+    
+    map_func_var(data.df,"10-42.8","orange")
+    
+  })
+  
+  output$research_var_map3 <- renderR3dmol({
+    
+    if(input$pat_only == TRUE){
+      
+      data.df <- res_mod()
+      y_label <- "Number of patients"
+      titel_label <- "Functionally tested patients per domain"
+      
+    }else{
+      
+      data.df <- res_mod_functional()
+      y_label <- "Number of variants"
+      titel_label <- "Functionally tested variants per domain"
+    }
+    
+    
+    map_func_var(data.df,">42.8","yellow")
+    
+  })
 
   output$research_functional1 <- renderPlotly({
     
-    data.df <- res_mod() %>% 
-      dplyr::rename(func_effect = "uptake") %>% 
-      filter(!is.na(func_effect)) %>% 
-      distinct(func_effect,AA_pos,AA_alt)
     
-    validate(need(
-      nrow(data.df) >0,
-      "There is no data that matches your filters."
-    ))
+    if(input$pat_only == TRUE){
+      
+      data.df <- res_mod()
+      y_label <- "Number of patients"
+      titel_label <- "Functionally tested patients per domain"
+      
+    }else{
+      
+      data.df <- res_mod_functional()
+      y_label <- "Number of variants"
+      titel_label <- "Functionally tested variants per domain"
+    }
     
+    validate(
+      need(nrow(data.df)>0,
+           "There is no data that matches your filters.")) 
     
-    plot <- plot_ly() %>% 
-      add_boxplot(data = data.df ,
-                  y = ~func_effect, type = "box", x= 0, boxpoints = "all",
-                  color = I("gray")) %>% 
-      layout(yaxis = list(title = "GABA uptake realtive to WT"),
-             title = "GABA uptake rate",
-             xaxis = list(title = "",
-                          zeroline = FALSE,
-                          showline = FALSE,
-                          showticklabels = FALSE,
-                          showgrid = FALSE),
-             font = plotly_font,
-             showlegend = F,
-             margin = list(t = 60)) %>% 
+    data.df %>% 
+      filter(Vartype == "Missense") %>% #colnames()
+      group_by(Domain_color) %>% 
+      dplyr::summarise(`GABA uptake (vs wt)` = sum(!is.na(`GABA uptake (vs wt)`)),
+                       `Surface expression (vs wt)`  = sum(!is.na(`Surface expression (vs wt)`)),
+                       `Total expression (vs wt)` = sum(!is.na(`Total expression (vs wt)`))) %>% 
+      mutate(Domain_color = factor(Domain_color, levels = c("N-terminal","TM1/6","Linker","TMD-other","Scaffold","EL2","EL3","EL4","C-terminal"))) %>% 
+      ungroup() %>% 
+      pivot_longer(cols = c(`GABA uptake (vs wt)`, `Surface expression (vs wt)`, `Total expression (vs wt)`)) %>% 
+      plot_ly(
+        x=~Domain_color , y=~(value), split=~name, type="bar", color=~name, alpha = 0.6, colors= func_colors) %>%
+      layout(title=titel_label,font=plotly_font,
+             margin = list(t =50),
+             yaxis = list(type = "log",
+                          title = y_label,
+                          ticktext = list("5", "10","20","50", "100", "200","500","1000"), 
+                          tickvals = list(1, 5,10,20,50,100,200,500,1000),
+                          showline = T,
+                          tickmode = "array"
+             ),
+             xaxis = list(title = "", showline = T, tickangle = 45)) %>% 
       config(modeBarButtonsToRemove = goodbye, displaylogo = FALSE)
-    
-
-    return(plot)
   })
+  
   
   output$research_functional2 <- renderPlotly({
     
-    data.df <- res_mod() %>% 
-      dplyr::rename(func_effect = "surface_exp") %>% 
+    if(input$pat_only == TRUE){
+      
+      data.df <- res_mod()
+      y_label <- "Number of patients"
+      titel_label <- "Functionally tested patients per domain"
+      
+    }else{
+      
+      data.df <- res_mod_functional()
+      y_label <- "Number of variants"
+      titel_label <- "Functionally tested variants per domain"
+    }
+    
+    validate(
+      need(nrow(data.df)>0,
+           "There is no data that matches your filters.")) 
+    
+    plot_ly(data.df %>% 
+              mutate(Domain_color = factor(Domain_color, levels = c("N-terminal","TM1/6","Linker","TMD-other","Scaffold","EL2","EL3","EL4","C-terminal"))),
+            x = ~Domain_color, y = ~`GABA uptake (vs wt)`,
+            type = "box",
+            boxpoints = "all",
+            jitter = 0.3,
+            pointpos = 0, 
+            marker = list(color = "black"),
+            line = list(color = "black"),
+            fillcolor = "khaki") %>% 
+      layout(title="GABA uptake per domain", 
+             font=plotly_font,
+             xaxis = list(title="", tickangle = 45),
+             margin = list(t = 50)) %>%
+      config(modeBarButtonsToRemove = goodbye, displaylogo = FALSE)
+    
+    
+  })
+  
+  output$research_functional3 <- renderPlotly({
+    
+    
+    if(input$pat_only == TRUE){
+      
+      data.df <- res_mod()
+      y_label <- "Number of patients"
+      titel_label <- "Functionally tested patients per domain"
+      
+    }else{
+      
+      data.df <- res_mod_functional()
+      y_label <- "Number of variants"
+      titel_label <- "Functionally tested variants per domain"
+    }
+    
+    func_dist(data.df,"dist_TGI","Distance from Tiagabine vs. GABA uptake rate","Distance from ligand Tiabgabine","mediumvioletred")
+    
+    
+  })
+  
+  output$research_functional4 <- renderPlotly({
+    
+    
+    if(input$pat_only == TRUE){
+      
+      data.df <- res_mod()
+      y_label <- "Number of patients"
+      titel_label <- "Functionally tested patients per domain"
+      
+    }else{
+      
+      data.df <- res_mod_functional()
+      y_label <- "Number of variants"
+      titel_label <- "Functionally tested variants per domain"
+    }
+    
+    func_dist(data.df,"dist_TM6","Distance from TM6 vs. GABA uptake rate","Distance from TM6","sandybrown")
+    
+    
+  })
+  
+  output$research_functional5 <- renderPlotly({
+    
+    
+    if(input$pat_only == TRUE){
+      
+      data.df <- res_mod()
+      y_label <- "Number of patients"
+      titel_label <- "Functionally tested patients per domain"
+      
+    }else{
+      
+      data.df <- res_mod_functional()
+      y_label <- "Number of variants"
+      titel_label <- "Functionally tested variants per domain"
+    }
+    
+    func_dist(data.df,"dist_TM1","Distance from TM1 vs. GABA uptake rate","Distance from TM1","lightskyblue")
+    
+    
+  })
+  
+  output$research_functional6 <- renderPlotly({
+    
+    
+    if(input$pat_only == TRUE){
+      
+      data.df <- res_mod()
+      y_label <- "Number of patients"
+      titel_label <- "Functionally tested patients per domain"
+      
+    }else{
+      
+      data.df <- res_mod_functional()
+      y_label <- "Number of variants"
+      titel_label <- "Functionally tested variants per domain"
+    }
+    
+    func_dist(data.df,"GAT1_axis_dist","Distance from GAT1-axis vs. GABA uptake rate","Distance from GAT1-axis","mediumseagreen")
+    
+    
+  })
+  
+  output$research_functional7 <- renderPlotly({
+    
+    if(input$pat_only == TRUE){
+      
+      data.df <- res_mod()
+      y_label <- "Number of patients"
+      titel_label <- "Functionally tested patients per domain"
+      
+    }else{
+      
+      data.df <- res_mod_functional()
+      y_label <- "Number of variants"
+      titel_label <- "Functionally tested variants per domain"
+    }
+    
+    data.df <- data.df %>% 
+      dplyr::rename(func_effect = "Surface expression (vs wt)") %>% 
       filter(!is.na(func_effect)) %>% 
+      filter(Vartype == "Missense") %>% 
       distinct(func_effect,AA_pos,AA_alt)
     
     validate(need(
@@ -1633,11 +2499,12 @@ shinyServer(function(input, output, session) {
     ))
     
     
-    plot <- plot_ly() %>% 
-      add_boxplot(data = data.df ,
-                  y = ~func_effect, type = "box", x= 0, boxpoints = "all",
-                  color = I("gray")) %>% 
-      layout(yaxis = list(title = "Surface expression realtive to WT"),
+    plot <- plot_ly(data = data.df ,
+                    y = ~func_effect, type = "box", x= 0, boxpoints = "all", pointpos = 0,
+                    fillcolor = "paleturquoise",
+                    marker = list(color = "black"),
+                    line = list(color = "black")) %>% 
+      layout(yaxis = list(title = "Surface expression (vs wt)"),
              title = "Surface expression",
              titlefont = list(size = 20),
              xaxis = list(title = "",
@@ -1654,11 +2521,25 @@ shinyServer(function(input, output, session) {
     return(plot)
   })
   
-  output$research_functional3 <- renderPlotly({
+  output$research_functional8 <- renderPlotly({
     
-    data.df <- res_mod() %>% 
-      dplyr::rename(func_effect = "total_exp") %>% 
+    if(input$pat_only == TRUE){
+      
+      data.df <- res_mod()
+      y_label <- "Number of patients"
+      titel_label <- "Functionally tested patients per domain"
+      
+    }else{
+      
+      data.df <- res_mod_functional()
+      y_label <- "Number of variants"
+      titel_label <- "Functionally tested variants per domain"
+    }
+    
+    data.df <- data.df %>% 
+      dplyr::rename(func_effect = "Total expression (vs wt)") %>% 
       filter(!is.na(func_effect)) %>% 
+      filter(Vartype == "Missense") %>% 
       distinct(func_effect,AA_pos,AA_alt)
     
     validate(need(
@@ -1669,9 +2550,11 @@ shinyServer(function(input, output, session) {
     
     plot <- plot_ly() %>% 
       add_boxplot(data = data.df ,
-                  y = ~func_effect, type = "box", x= 0, boxpoints = "all",
-                  color = I("gray")) %>% 
-      layout(yaxis = list(title = "Total expression realtive to WT"),
+                  y = ~func_effect, type = "box", x= 0, boxpoints = "all", pointpos = 0,
+                  fillcolor = "indianred",
+                  marker = list(color = "black"),
+                  line = list(color = "black")) %>% 
+      layout(yaxis = list(title = "Total expression (vs wt)"),
              title = "Total expression",
              titlefont = list(size = 20),
              xaxis = list(title = "",
@@ -1683,91 +2566,6 @@ shinyServer(function(input, output, session) {
              showlegend = F,
              margin = list(t = 60)) %>% 
       config(modeBarButtonsToRemove = goodbye, displaylogo = FALSE)
-    
-    
-    return(plot)
-  })
-  
-  output$research_functional4 <- renderPlotly({
-    
-    data.df <- res_mod() %>% 
-      dplyr::rename(func_effect = "relative_update_surface_exp") %>% 
-      filter(!is.na(func_effect)) %>% 
-      distinct(func_effect,AA_pos,AA_alt)
-    
-    validate(need(
-      nrow(data.df) >0,
-      "There is no data that matches your filters."
-    ))
-    
-    
-    plot <- plot_ly() %>% 
-      add_boxplot(data = data.df ,
-                  y = ~func_effect, type = "box", x= 0, boxpoints = "all",
-                  color = I("gray")) %>% 
-      layout(yaxis = list(title = "Relative uptake to surface expression"),
-             title = "Relative uptake to surface expression",
-             titlefont = list(size = 20),
-             xaxis = list(title = "",
-                          zeroline = FALSE,
-                          showline = FALSE,
-                          showticklabels = FALSE,
-                          showgrid = FALSE),
-             font = plotly_font,
-             showlegend = F,
-             margin = list(t = 60)) %>% 
-      config(modeBarButtonsToRemove = goodbye, displaylogo = FALSE)
-    
-    
-    return(plot)
-  })
-  
-  output$research_functional5 <- renderPlotly({
-    
-    data.df <- res_mod() %>% 
-      dplyr::rename(func_effect = "relative_surface_exp_tot_exp") %>% 
-      filter(!is.na(func_effect)) %>% 
-      distinct(func_effect,AA_pos,AA_alt)
-    
-    validate(need(
-      nrow(data.df) >0,
-      "There is no data that matches your filters."
-    ))
-    
-    
-    plot <- plot_ly() %>% 
-      add_boxplot(data = data.df ,
-                  y = ~func_effect, type = "box", x= 0, boxpoints = "all",
-                  color = I("gray")) %>% 
-      layout(yaxis = list(title = "Relative surface expression\n to total expression"),
-             title = "Relative surface expression to total expression",
-             titlefont = list(size = 20),
-             xaxis = list(title = "",
-                          zeroline = FALSE,
-                          showline = FALSE,
-                          showticklabels = FALSE,
-                          showgrid = FALSE),
-             font = plotly_font,
-             showlegend = F,
-             margin = list(t = 60)) %>% 
-      config(modeBarButtonsToRemove = goodbye, displaylogo = FALSE)
-    
-    
-    return(plot)
-  })
-  
-  output$functional_structure_legend_plot <- renderPlot({
-    
-    
-    legend <- data.frame(x=c(1,7,14,21,28), y=c(1, 1, 1,1,1), text=c("LoF", "GoF", "Mixed", "Complex","STW"))
-    plot <- ggplot(legend, aes(x=x, y=y, color=text))+
-      geom_point(size = 6)+
-      scale_color_manual(values = c("LoF"="#cc0000","GoF"="#66ffff","Mixed"="#ff8000","Complex"="#6600cc","STW"="#c0c0c0"))+
-      ylim(c(0,2))+
-      xlim(c(0,32))+
-      theme_void()+
-      geom_text(aes(label=text), hjust=-0.4, color="black")+
-      theme(legend.position = "none")
     
     
     return(plot)

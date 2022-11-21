@@ -357,7 +357,7 @@ shinyUI(
                      panel(heading = basic_title,    
                            status = "success",
                        fluidRow(
-                         column(4, 
+                         column(4,
                            box(width = 12,
                              title = p("History of ",em(gene1), " research"),   
                              timelineBlock(
@@ -654,13 +654,13 @@ shinyUI(
                          inputId = "search_Allele",
                          label = "Ref",
                          choices = c("G", "A", "C", "T"),
-                         selected = "C"
+                         selected = "G"
                      ),
                      pickerInput(
                          inputId = "search_cDNA_alt",
                          label = "Alt",
                          choices = c("G", "A", "C", "T", "null"),
-                         selected = "C"
+                         selected = "A"
                      ),
                      actionButton(inputId = "search_var_c", label = "Search")),
                    column(3,
@@ -676,7 +676,7 @@ shinyUI(
                          inputId = "search_AA_ref",
                          label = "Ref",
                          choices = sort(unique(master.df$AA_ref)),
-                         selected = "Gly"
+                         selected = "Val"
                      ),
                      pickerInput(
                          inputId = "search_AA_alt",
@@ -782,9 +782,10 @@ shinyUI(
                 panel(status="default", 
                       heading = "Custom variant analysis",
                   tabsetPanel(
-                    tabPanel("Comparative Information",
+                    tabPanel("Comparison of phenotypes",
+                             
                              br(),
-                             h4("Compare the selected variant with other similar variants."),
+                             h4("Explore what phenotypes have been associated with patients in our cohort that have a similar variant."),
                              br(),
                              radioGroupButtons(inputId = "compareButtons",
                                                label = "Variants with the same:",
@@ -796,6 +797,26 @@ shinyUI(
                     br(),
                     div(width = "100%", plotlyOutput("comparePlot"))
                   ),
+                  tabPanel("Comparison of variant location and molecular activity",
+                           column(6,
+                                  addSpinner(color = spinner_color,
+                                             r3dmolOutput(
+                                               outputId = "Var_analysis_compare_var",
+                                               width = "100%",
+                                               height = "400px"
+                                             ))),
+                           column(6,
+                                  addSpinner(color = spinner_color,
+                                             r3dmolOutput(
+                                               outputId = "Var_analyis_hotzone",
+                                               width = "100%",
+                                               height = "400px"
+                                             ))),
+                           column(12,
+                                  div(width = "100%", plotlyOutput("compare_act")))
+                           
+                  ),
+                  
                   tabPanel("In silico scores",
                            br(),
                            #column(5,plotOutput(outputId = "paraz_legend", height = 30, width = 450)),
@@ -953,17 +974,18 @@ shinyUI(
                            column(5,
                              addSpinner(color = spinner_color,
                                r3dmolOutput(
-                                 outputId = "threeDmolGene_all",
+                                 outputId = "threeDmolGene_all_new",
                                  width = "100%",
                                  height = "400px"
                                )),
-                             div("UniProt:", 
-                                 align="center", 
-                                 style=sub_style, 
+                             div("UniProt:",
+                                 align="center",
+                                 style=sub_style,
                                  shiny::a("P30531", href="https://www.uniprot.org/uniprot/P30531", target="_blank"),
                                  br(),
                                  div("Predicted structure", align="center", style=sub_style,
-                                 shiny::a("Alpha fold", href="https://www.alphafold.ebi.ac.uk/entry/P30531", target="_blank"))))
+                                 shiny::a("Alpha fold", href="https://www.alphafold.ebi.ac.uk/entry/P30531", target="_blank")))),
+                         column(6,align = "justify",plotlyOutput("domain_enrichment_pat_pop"))
              )))),
              tabPanel("Phenotype Interface",br(),
                fluidRow(
@@ -986,14 +1008,81 @@ shinyUI(
                  column(12,
                         p(research_pheno_abb, style=sub_style, align = "center")))
                ),
-             tabPanel("Functional interface",br(),
-               fluidRow(
-                 column(4,align="justify",plotlyOutput("research_functional1")),
-                 column(4,align="justify",plotlyOutput("research_functional2")),
-                 column(4,align="justify",plotlyOutput("research_functional3")),
-                 column(4,align="justify",plotlyOutput("research_functional4")),
-                 column(4,align="justify",plotlyOutput("research_functional5"))
-               ))
+             tabPanel("Functional interface",
+                      br(),
+                      fluidRow(
+                        column(6,
+                               materialSwitch(
+                                 inputId = "pat_only",
+                                 label = "Show only functional data for patient variants",
+                                 status = "primary",
+                                 right = T,
+                                 inline = T
+                               ),
+                               align="justify",
+                               plotlyOutput("research_functional1")),
+                        column(6,
+                               br(),
+                               br(),
+                               plotlyOutput("research_functional2")),
+                        column(4,
+                               addSpinner(color = spinner_color,
+                                          r3dmolOutput(
+                                            outputId = "research_var_map1",
+                                            width = "100%",
+                                            height = "400px"
+                                          ))),
+                        column(4,
+                               addSpinner(color = spinner_color,
+                                          r3dmolOutput(
+                                            outputId = "research_var_map2",
+                                            width = "100%",
+                                            height = "400px"
+                                          ))),
+                        column(4,
+                               addSpinner(color = spinner_color,
+                                          r3dmolOutput(
+                                            outputId = "research_var_map3",
+                                            width = "100%",
+                                            height = "400px"
+                                          ))),
+                        column(6,
+                               addSpinner(color = spinner_color,
+                                          r3dmolOutput(
+                                            outputId = "research_hotzone",
+                                            width = "100%",
+                                            height = "400px"
+                                          ))),
+                        column(6,
+                               addSpinner(color = spinner_color,
+                                          r3dmolOutput(
+                                            outputId = "research_dist_struc",
+                                            width = "100%",
+                                            height = "400px"
+                                          ))),
+                        
+                        column(6,
+                               plotlyOutput("research_functional3"),
+                               plotlyOutput("research_functional5")),
+                        column(6,
+                               plotlyOutput("research_functional4"),
+                               plotlyOutput("research_functional6")),
+                        column(12,align = "center",
+                               div(h3("Other measured parameter"))),
+                        column(6,
+                               plotlyOutput("research_functional7")),
+                        column(6,
+                               plotlyOutput("research_functional8")),
+                        
+                      )
+               # fluidRow(
+               #   column(4,align="justify",plotlyOutput("research_functional1")),
+               #   column(4,align="justify",plotlyOutput("research_functional2")),
+               #   column(4,align="justify",plotlyOutput("research_functional3")),
+               #   column(4,align="justify",plotlyOutput("research_functional4")),
+               #   column(4,align="justify",plotlyOutput("research_functional5"))
+               # )
+               )
            ))))
                   )))
       ), #end research tab
