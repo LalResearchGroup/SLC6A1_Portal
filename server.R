@@ -1158,18 +1158,36 @@ shinyServer(function(input, output, session) {
     var_ex.df <- Patient_data_missense_only.df %>%
       filter(AA_pos == varFilterInput$data$AA_pos, AA_alt == varFilterInput$data$AA_alt) %>% #"varFilterInput$data$AA_pos)
       filter(!is.na(`GABA uptake (vs wt)`)) %>% 
-      mutate(label = "Same variant")
+      mutate(label = "Same variant") %>% 
+      distinct(label,AA_pos,AA_alt,`GABA uptake (vs wt)`)
     
     var_pos.df <- Patient_data_missense_only.df %>%
       filter(AA_pos == varFilterInput$data$AA_pos) %>% #"varFilterInput$data$AA_pos)
       filter(!is.na(`GABA uptake (vs wt)`)) %>% 
-      mutate(label = "Same position")
+      mutate(label = "Same position")%>% 
+      distinct(label,AA_pos,AA_alt,`GABA uptake (vs wt)`)
+    
     var_domain.df <- Patient_data_missense_only.df %>%
       filter(Domain_color==varFilterInput$data$Domain_color) %>% #varFilterInput$data$Domain_color)
       filter(!is.na(`GABA uptake (vs wt)`)) %>% 
-      mutate(label = "Same domain")
+      mutate(label = "Same domain") %>% 
+      distinct(label,AA_pos,AA_alt,`GABA uptake (vs wt)`)
     
-    var_all.df <- rbind(var_ex.df,var_pos.df,var_domain.df)
+    var_pat.df <- Patient_data_missense_only.df %>% 
+      mutate(label = "All patient variants") %>% 
+      distinct(label,AA_pos,AA_alt,`GABA uptake (vs wt)`)
+    
+    var_con.df <- Control_data.df %>% 
+      left_join(functional.df %>% filter(Vartype == "Missense"), by = c("AA_pos" = "AA_pos","AA_alt" = "AA_alt","AA_ref" = "AA_ref","Vartype" = "Vartype")) %>% 
+      filter(!is.na(`GABA uptake (vs wt)`)) %>% 
+      mutate(label = "All control variants") %>% 
+      distinct(label,AA_pos,AA_alt,`GABA uptake (vs wt)`) %>% 
+      select(label,`GABA uptake (vs wt)`)
+    
+    
+    var_all.df <- rbind(var_pos.df,var_domain.df,var_pat.df) %>% 
+      select(label,`GABA uptake (vs wt)`) %>% 
+      rbind(var_con.df)
     
     validate(
       need(nrow(var_all.df) >0,
@@ -1177,31 +1195,44 @@ shinyServer(function(input, output, session) {
     
     plot <- plot_ly() %>%
       add_boxplot(data = var_all.df,
-                  x = ~label,
+                  x = ~factor(label),
                   y = ~`GABA uptake (vs wt)`,
                   jitter = 0.3,
-                  #name = "Seizure onset",
+                  color = ~label,
                   boxpoints = "all",
                   pointpos = 0,
-                  #color =I("gray"),
+                  colors = c("black","darkred","orange","yellow"),
                   marker = list (color = 'gray',
                                  line = list(color ="black", width = 1)),
-                  line = list(color ="black", width = 2)) 
+                  line = list(color ="black", width = 2)) %>% 
+      add_trace(data = var_ex.df, x= ~label, y = ~`GABA uptake (vs wt)`, type = "box",
+                boxpoints = "all",
+                pointpos = 0,
+                jitter = 0.3,
+                marker = list (color = 'gray',
+                               line = list(color ="purple", width = 1)),
+                line = list(color ="purple", width = 2))
     
-    if(var_all.df$label %>% unique() %>% length() == 3){
+    if(var_all.df$label %>% unique() %>% length() == 5){
       plot <- plot %>% 
         layout(yaxis = list(title = "GABA uptake (vs wt)"),
-               xaxis = list(title = "Variants located at"))
-    } else if(var_all.df$label %>% unique() %>% length() == 2){
+               xaxis = list(title = ""),
+               showlegend = FALSE,
+               font=plotly_font) %>% config(modeBarButtonsToRemove = goodbye, displaylogo = FALSE)
+    } else if(var_all.df$label %>% unique() %>% length() == 4){
       plot <- plot %>% 
         layout(yaxis = list(title = "GABA uptake (vs wt)"),
-               xaxis = list(title = "Variants located at"),
-               margin = list(r = 200, l = 200))
+               xaxis = list(title = ""),
+               margin = list(r = 100, l = 100),
+               showlegend = FALSE,
+               font=plotly_font) %>% config(modeBarButtonsToRemove = goodbye, displaylogo = FALSE)
     } else{
       plot <- plot %>% 
         layout(yaxis = list(title = "GABA uptake (vs wt)"),
-               xaxis = list(title = "Variants located at"),
-               margin = list(r = 350, l = 350))
+               xaxis = list(title = ""),
+               margin = list(r = 250, l = 250),
+               showlegend = FALSE,
+               font=plotly_font) %>% config(modeBarButtonsToRemove = goodbye, displaylogo = FALSE)
     }
     
   })

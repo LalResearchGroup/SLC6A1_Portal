@@ -941,7 +941,7 @@ shinyUI(
                          12,
                          br(),
                          p(
-                           strong("Selected variants are displayed in 2D (lolliplot) and 3D (protein structure).")
+                           strong("Selected variants are displayed in 1D (lolliplot) and 3D (protein structure).")
                          ),
                          fluidRow(
                            column(7,
@@ -1008,7 +1008,7 @@ shinyUI(
                  column(12,
                         p(research_pheno_abb, style=sub_style, align = "center")))
                ),
-             tabPanel("Functional interface",
+             tabPanel("Functional Interface",
                       br(),
                       fluidRow(
                         column(6,
