@@ -634,7 +634,8 @@ mermer.df <- read_delim("data/Functional_data_mermer.txt", delim = "\t") %>%
          `Total expression (vs wt)`,
          `Relative uptake/surface expression`,
          `Relative surface expression/total expression`) %>% 
-  mutate(var_id = paste0(AA_ref,AA_pos,AA_alt))
+  mutate(var_id = paste0(AA_ref,AA_pos,AA_alt)) %>% 
+  mutate(`GABA uptake (vs wt)` = `GABA uptake (vs wt)`*100)
 
 
 functional.df <- biomarin.df %>% 
@@ -650,13 +651,17 @@ functional_only.df <- functional.df%>%
   left_join(per2d.df) %>% 
   left_join(dist_imp_features.df)
 
+# Exchanges for patient data
+exchanges <- all_exchanges.df %>% 
+  select(cDNA_pos, cDNA_ref, cDNA_alt, AA_pos, AA_ref, AA_alt, Vartype)
+
 #Load patient and control data 
 Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v8.txt", delim = "\t") %>% 
   select(-Transcript) %>% 
   mutate(AA_pos = as.numeric(AA_pos)) %>% 
   ##specific to each dataset
   dplyr::rename(Sz_onset = "Age at seizure onset (months)",
-         Epilepsy = "Epilepsy") %>% 
+                Epilepsy = "Epilepsy") %>% 
   left_join(master.df %>% distinct(Transcript,Gene,AA_pos), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>% 
   left_join(Domain_gene.df %>% distinct(Domain,Gene,AA_pos,Domain_color), by = c("AA_pos" = "AA_pos","Gene" = "Gene")) %>%
   left_join(per3d.df) %>% 
@@ -670,14 +675,28 @@ Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v8.txt", delim = "\t
          Inheritance = ifelse(is.na(Inheritance),"NA",Inheritance),
          Epilepsy = ifelse(Epilepsy %in% c("No","Yes"),Epilepsy,"NA")) %>% 
   dplyr::rename(Autism = "Autistic traits",
-         Epilepsy_syndrome = "Epilepsy Syndrome Classification",
-         ID_after_sz_onset = "Cognitive Level AFTER Seizure Onset") %>% 
+                Epilepsy_syndrome = "Epilepsy Syndrome Classification",
+                ID_after_sz_onset = "Cognitive Level AFTER Seizure Onset") %>% 
   mutate(Autism = ifelse(is.na(Autism),NA,Autism)) %>% 
   left_join(functional.df %>% filter(Vartype == "Missense"), by = c("AA_pos" = "AA_pos","AA_alt" = "AA_alt","AA_ref" = "AA_ref","Vartype" = "Vartype")) %>% 
-  left_join(dist_imp_features.df)
+  left_join(dist_imp_features.df) %>% 
+  left_join(exchanges, by = c("cDNA_pos", "cDNA_ref", "cDNA_alt")) %>% 
+  mutate(Vartype = case_when(Vartype.x == "CNV" ~ "CNV",
+                             Vartype.x == "INDEL" ~ "INDEL",
+                             Vartype.x == "PTV" ~ "PTV",
+                             Vartype.x == "?" ~ "Missense",
+                             Vartype.x == "Missense" ~ "Missense",
+                             Vartype.x == "Splice" ~ "Splice")) %>% 
+  select(-Vartype.x, -AA_pos.y, -AA_ref.y, -AA_alt.y, -Vartype.y) %>% 
+  dplyr::rename(AA_pos = AA_pos.x, AA_ref = AA_ref.x, AA_alt = AA_alt.x)
 
 Patient_data_missense_only.df <- Patient_data.df %>% 
   filter(Vartype == "Missense")
+
+# All functionally tested variants with clinical data if available
+functional.df.missense_patient.df <- functional.df.missense %>% 
+  left_join(Patient_data.df) %>% 
+  distinct(AA_pos, AA_ref, AA_alt, `GABA uptake (vs wt)`, .keep_all = T)
 
 Control_data.df <- read_delim("data/gnomad_variants.txt", delim = "\t") %>% 
   mutate(AA_ref = aaa(AA_ref),
