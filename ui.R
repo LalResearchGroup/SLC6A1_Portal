@@ -94,20 +94,27 @@ NAFE = Non-acquired focal epilepsy; EOAE = Early onset absence epilepsy; DEE = D
 basic_abbreviations4 = "ID = Intellectual disability; DD = Developmental delay"
 
 #tippy
-epi_syndrome_tippy <- h5(HTML(paste0("<ul><li>CAE = Childhood Absence Epilepsy</li>")), 
-                         HTML(paste0("<li>DEE = Developmental Epileptic Encephalopathy</li>")), 
-                         HTML(paste0("<li>EMAS = Epilepsy with Myoclonic-Atonic Seizures</li>")),
-                         HTML(paste0("<li>GGE = Genetic Generalized Epilepsy</li>")), 
-                         HTML(paste0("<li>LGS = Lennox-Gastaut Syndrome</li>")), 
-                         HTML(paste0("<li>NAFE = Non-Acquired Focal Epilepsy</li>")), 
+epi_protein_tippy <- h5(HTML(paste0("<ul><li>EL2/3/4: Extracellular loops 2/3/4</li>")), 
+                         HTML(paste0("<li>TM1/6: Transmembrane domains 1/6</li>")), 
+                         HTML(paste0("<li>TMD-other: Transmembrane domain other</li>")),
+                         # HTML(paste0("<li>No SZ = No seizures</li>")), 
+                         # HTML(paste0("<li>UG = Unclassified general</li>")), 
+                         align = "left")
+
+epi_syndrome_tippy <- h5(HTML(paste0("<ul><li>CAE: Childhood Absence Epilepsy</li>")), 
+                         HTML(paste0("<li>DEE: Developmental Epileptic Encephalopathy</li>")), 
+                         HTML(paste0("<li>EMAS: Epilepsy with Myoclonic-Atonic Seizures</li>")),
+                         HTML(paste0("<li>GGE: Genetic Generalized Epilepsy</li>")), 
+                         HTML(paste0("<li>LGS: Lennox-Gastaut Syndrome</li>")), 
+                         HTML(paste0("<li>NAFE: Non-Acquired Focal Epilepsy</li>")), 
                          # HTML(paste0("<li>EOAE = Early onset absence epilepsy</li>")), 
                          HTML(paste0("<li>TLE = Temporal Lobe Epilepsy</li>")), 
                          # HTML(paste0("<li>No SZ = No seizures</li>")), 
                          # HTML(paste0("<li>UG = Unclassified general</li>")), 
                          align = "left")
 
-dd_id_tippy <- h5(HTML(paste0("<ul><li>DD = Developmental delay</li>")),
-                  HTML(paste0("<li>ID = Intellectual disability</li>")), align = "left")
+dd_id_tippy <- h5(HTML(paste0("<ul><li>DD: Developmental delay</li>")),
+                  HTML(paste0("<li>ID: Intellectual disability</li>")), align = "left")
 
 Gene1_basic_text <- p(HTML(paste0("",em("SLC6A1"),"-related disorders are a group of genetic disorders characterized by disease-causing variants in the ",em("SLC6A1")," gene. Clinical manifestations of ",em("SLC6A1")," disorders include mild to severe intellectual disability, behavioral disturbances such as autism and ADHD and seizures (mean onset 3.7 years), often absences, myoclonic and atonic seizures. One or more of these features can be present in each individual affected by an ",em("SLC6A1"),"-related disorder.")))
 
@@ -166,7 +173,21 @@ NAFE = Non-acquired focal epilepsy; EOAE = Early onset absence epilepsy; DEE = D
 
 research_geno_transcripts <- p("The following transcript was used:",em("SLC6A1"),": ENST00000287766",
                                br(),
-                               "H: Helix")
+                               "PTV: Protein truncating variant")
+
+research_geno_abbr <- p("Abbreviations:",
+                               br(),
+                               "TM1/6: Transmembrane domains 1/6; TMD-other: Transmembrane domain other; EL2/3/4: Extracellular loops 2/3/4; wt: wild-type.")
+
+research_geno_abbr_2 <- p("Abbreviations:",
+                           br(),
+                           "GAT1: GABA transporter type 1; TM1/6: Transmembrane domains 1/6; wt: wild-type.")
+
+research_geno_abbr_3 <- p("Abbreviations:",
+                          br(),
+                          "TM1/6: Transmembrane domains 1/6; TMD-other: Transmembrane domain other; EL2/3/4: Extracellular loops 2/3/4; OR: Odds ratio.")
+
+activity_legend <- "legend_activity_groups_portal.png"
 
 #Datasets required for research tab 
 Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v8.txt", delim = "\t") %>%
@@ -873,13 +894,15 @@ shinyUI(
                          ),
                          domain = list(
                            inputId = "Domain",
-                           title = p(strong("Protein region")),
+                           title = p(strong("Protein region"), tippy(icon("question-circle"),
+                                                                   tooltip = epi_protein_tippy,
+                                                                   animation = "scale", theme = "light")),
                            placeholder="all",
                            choices = unique(Patient_data.df$Domain)
                          ),
                          epilepsy = list(
                              inputId = "Epilepsy_syndrome",
-                             title = p(strong("Epilepsy Syndromes"),tippy(icon("question-circle"),
+                             title = p(strong("Epilepsy Syndromes"), tippy(icon("question-circle"),
                                                                           tooltip = epi_syndrome_tippy,
                                                                           animation = "scale", theme = "light")),
                              placeholder="all",
@@ -985,7 +1008,10 @@ shinyUI(
                                  br(),
                                  div("Predicted structure", align="center", style=sub_style,
                                  shiny::a("Alpha fold", href="https://www.alphafold.ebi.ac.uk/entry/P30531", target="_blank")))),
-                         column(6,align = "justify",plotlyOutput("domain_enrichment_pat_pop"))
+                         column(6,align = "justify", 
+                                div(h3("Domain-wide comparison of patient vs. population variants")),
+                                plotlyOutput("domain_enrichment_pat_pop"),
+                                p(research_geno_abbr_3 , align="center", style=sub_style))
              )))),
              tabPanel("Phenotype Interface",br(),
                fluidRow(
@@ -1025,6 +1051,11 @@ shinyUI(
                                br(),
                                br(),
                                plotlyOutput("research_functional2")),
+                        column(12, align = "center",
+                               p(research_geno_abbr , align="center", style=sub_style)),
+                        column(12,align = "center",
+                               div(h3("GAT1 3D structure with functionally tested variants")),
+                               img(src = activity_legend, width = "40%")),
                         column(4,
                                addSpinner(color = spinner_color,
                                           r3dmolOutput(
@@ -1046,14 +1077,24 @@ shinyUI(
                                             width = "100%",
                                             height = "400px"
                                           ))),
-                        column(6,
+                        column(6, align = "center",
+                               div(h4("Hotzones on GAT1 3D structure", tippy(icon("question-circle"), tooltip = h5(HTML(paste0(strong("Color coding"))),
+                                                                                                                  HTML(paste0("<ul><li>Red: Nearly complete loss-of-function variants (<10% WT of normalized activity)</li>")), 
+                                                                                                                  HTML(paste0("<li>Yellow: WT activity variants (>42.8% of normalized WT activity)</li>")), align = "left"),
+                                                                            animation = "scale", theme = "light"))),
                                addSpinner(color = spinner_color,
                                           r3dmolOutput(
                                             outputId = "research_hotzone",
                                             width = "100%",
                                             height = "400px"
                                           ))),
-                        column(6,
+                        column(6, align = "center",
+                               div(h4("GAT1 3D structure with key features", tippy(icon("question-circle"), tooltip = h5(HTML(paste0(strong("Color coding"))),
+                                                                                                                         HTML(paste0("<ul><li>Green: Predicted GAT1 transporter axis using the Mole2.0 web server (https://mole.upol.cz/, v.2.5)</li>")), 
+                                                                                                                         HTML(paste0("<li>Purple: GABA binding site</li>")),
+                                                                                                                         HTML(paste0("<li>Blue: Transmembrane domain 1 (TM1)</li>")),
+                                                                                                                         HTML(paste0("<li>Amber: Transmembrane domain 6 (TM6)</li>")), align = "left"),
+                                                                                   animation = "scale", theme = "light"))),
                                addSpinner(color = spinner_color,
                                           r3dmolOutput(
                                             outputId = "research_dist_struc",
@@ -1063,10 +1104,12 @@ shinyUI(
                         
                         column(6,
                                plotlyOutput("research_functional3"),
-                               plotlyOutput("research_functional5")),
+                               plotlyOutput("research_functional5")), br(), br(),
                         column(6,
                                plotlyOutput("research_functional4"),
                                plotlyOutput("research_functional6")),
+                        column(12, align = "center",
+                               p(research_geno_abbr_2 , align="center", style=sub_style)),
                         column(12,align = "center",
                                div(h3("Other measured parameter"))),
                         column(6,
