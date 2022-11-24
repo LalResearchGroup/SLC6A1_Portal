@@ -5,7 +5,7 @@ account: lal-portals
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5227225
-bundleId: 6543407
+bundleId: 6549522
 url: https://lal-portals.shinyapps.io/SLC6A1-portal/
-when: 1669131536.90983
-lastSyncTime: 1669131536.90983
+when: 1669263311.8572
+lastSyncTime: 1669263311.85721

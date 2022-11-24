@@ -166,6 +166,8 @@ var_paralog_info_abb <- ""
 
 variants_compareplots_abb <- "DEE: Developmental and Epileptic Encephalopathies; BNFS: Benign Familial Neonatal Seizures; EOEE: Early-Onset Epileptic Encephalopathies; ASD: Autism Spectrum Disorder "
 
+legend_variant_analysis <- "legend_variant_analysis_portal.png"
+
 #####Research Variable ####
 research_pheno_abb <- "DD: Developmental delay, ID: Intellectual disability"
 research_pheno_abb2 <- "EMAS = Epilepsy with myoclonic-atonic seizures; GGE = Genetic generalized epilepsy; UG = Unclassified general;
@@ -819,14 +821,22 @@ shinyUI(
                     div(width = "100%", plotlyOutput("comparePlot"))
                   ),
                   tabPanel("Comparison of variant location and molecular activity",
-                           column(6,
+                           column(12,align = "center",
+                                  div(h3("GAT1 3D structure")),
+                                  img(src = legend_variant_analysis, width = "40%")),
+                           column(6, align = "center",
+                                  div(h4("Patient and Control variants on GAT1 3D structure")),
                                   addSpinner(color = spinner_color,
                                              r3dmolOutput(
                                                outputId = "Var_analysis_compare_var",
                                                width = "100%",
                                                height = "400px"
                                              ))),
-                           column(6,
+                           column(6, align = "center",
+                                  div(h4("Hotzones on GAT1 3D structure", tippy(icon("question-circle"), tooltip = h5(HTML(paste0(strong("Color coding"))),
+                                                                                                                      HTML(paste0("<ul><li>Red: Nearly complete loss-of-function variants (<10% WT of normalized activity)</li>")), 
+                                                                                                                      HTML(paste0("<li>Yellow: WT activity variants (>42.8% of normalized WT activity)</li>")), align = "left"),
+                                                                                animation = "scale", theme = "light"))),
                                   addSpinner(color = spinner_color,
                                              r3dmolOutput(
                                                outputId = "Var_analyis_hotzone",
@@ -834,7 +844,8 @@ shinyUI(
                                                height = "400px"
                                              ))),
                            column(12,
-                                  div(width = "100%", plotlyOutput("compare_act")))
+                                  div(width = "100%", plotlyOutput("compare_act")),
+                                  p("wt: wild-type" , align="center", style=sub_style),)
                            
                   ),
                   
