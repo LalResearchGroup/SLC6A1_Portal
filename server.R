@@ -22,7 +22,6 @@ library(vembedr)
 library(shinyhelper)
 library(rsconnect)
 library(pacman)
-library(Rfast)
 
 ############## FUNCTIONS, STYLE ############
 
@@ -392,10 +391,7 @@ map_var_3d <- function(data,Gene_sel,gnomad_bool,pdb_sel,structure_coordinates,s
   
   #Specify yourself- color of the cartoon per subunit
   subunit_color <- c("wheat","white") #
-  
-  print(variant.df)
-  print("now gnomad")
-  print(gnomad.df)
+
   #Model for the protein complex
   
   modelo <- r3dmol(
@@ -678,7 +674,15 @@ Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v8.txt", delim = "\t
                 Epilepsy_syndrome = "Epilepsy Syndrome Classification",
                 ID_after_sz_onset = "Cognitive Level AFTER Seizure Onset") %>% 
   mutate(Autism = ifelse(is.na(Autism),NA,Autism)) %>% 
-  left_join(functional.df %>% filter(Vartype == "Missense"), by = c("AA_pos" = "AA_pos","AA_alt" = "AA_alt","AA_ref" = "AA_ref","Vartype" = "Vartype")) %>% 
+  left_join(functional.df %>% 
+              filter(Vartype == "Missense") %>% 
+              dplyr::group_by(AA_pos,AA_alt,AA_ref,Vartype) %>% 
+              dplyr::summarise(`Total expression (vs wt)` = mean(`Total expression (vs wt)`, na.rm = T),
+                        `Surface expression (vs wt)` = mean(`Surface expression (vs wt)`, na.rm = T),
+                        `Relative surface expression/total expression` = mean(`Relative surface expression/total expression`, na.rm = T),
+                        `Relative uptake/surface expression` = mean(`Relative uptake/surface expression`, na.rm = T),
+                        `GABA uptake (vs wt)` = mean(`GABA uptake (vs wt)`, na.rm = T)) %>% 
+              ungroup(), by = c("AA_pos" = "AA_pos","AA_alt" = "AA_alt","AA_ref" = "AA_ref","Vartype" = "Vartype")) %>% 
   left_join(dist_imp_features.df) %>% 
   left_join(exchanges, by = c("cDNA_pos", "cDNA_ref", "cDNA_alt")) %>% 
   mutate(Vartype = case_when(Vartype.x == "CNV" ~ "CNV",
@@ -694,9 +698,9 @@ Patient_data_missense_only.df <- Patient_data.df %>%
   filter(Vartype == "Missense")
 
 # All functionally tested variants with clinical data if available
-functional.df.missense_patient.df <- functional.df.missense %>% 
-  left_join(Patient_data.df) %>% 
-  distinct(AA_pos, AA_ref, AA_alt, `GABA uptake (vs wt)`, .keep_all = T)
+# functional.df.missense_patient.df <- functional.df.missense %>% 
+#   left_join(Patient_data.df) %>% 
+#   distinct(AA_pos, AA_ref, AA_alt, `GABA uptake (vs wt)`, .keep_all = T)
 
 Control_data.df <- read_delim("data/gnomad_variants.txt", delim = "\t") %>% 
   mutate(AA_ref = aaa(AA_ref),
@@ -1069,10 +1073,7 @@ shinyServer(function(input, output, session) {
   
   # Table with patient information ####
   output$patientTable <- DT::renderDataTable({
-    
-    print(varFilterInput$data)
-  
-    
+
     validate(
       need(!plyr::empty(varFilterInput$data),
            "There is no data that matches your filters.")) 
@@ -1208,9 +1209,14 @@ shinyServer(function(input, output, session) {
       select(label,`GABA uptake (vs wt)`) %>% 
       rbind(var_con.df)
     
+    print(var_all.df)
+    
     validate(
       need(nrow(var_all.df) >0,
            "There is no data that matches your filters.")) 
+    
+    print(1)
+    print(var_all.df)
     
     plot <- plot_ly() %>%
       add_boxplot(data = var_all.df,
@@ -1257,8 +1263,7 @@ shinyServer(function(input, output, session) {
   })
   
   output$Var_analysis_compare_var <- renderR3dmol({
-    
-    
+
     structure.df <- read_delim("data/pdb/7sk2_struc.txt",delim = "\t") %>%
       mutate(Aminoacid = aaa(Aminoacid)) %>%
       select(Uniprot_position,Aminoacid,Position_in_structure,gene,chain)
@@ -1678,7 +1683,7 @@ shinyServer(function(input, output, session) {
   res_mod_functional <- callModule(
     module = selectizeGroupServer,
     id = "research-filters",
-    data = functional_only.df,
+    data = functional_only.df %>% filter(Vartype == "Missense"),
     vars = c("Vartype",  "AA_alt", "Domain","Hotzone_2D","PER3D")
   )
   
@@ -1953,7 +1958,7 @@ shinyServer(function(input, output, session) {
     pat_con.df <- rbind(res_mod() %>% 
                           filter(Vartype == "Missense") %>% 
                           select(AA_pos,AA_ref,AA_alt) %>% 
-                          #distinct() %>% 
+                          distinct() %>% 
                           mutate(label = "Patient"),
                         res_mod_control() %>% 
                           filter(Vartype == "Missense") %>% 
