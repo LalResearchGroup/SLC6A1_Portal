@@ -356,8 +356,11 @@ shinyUI(
               fluidRow(
                 column(4, offset = 2, align = "center",
                        p("Visit our other Portals:", style = "font-size:14px;", align = "center", style = "font-size:14px;"),
-                       p(shiny::a("SCN-Portal", href="http://scn-portal.broadinstitute.org/", target = '_blank'), "& ",
-                         shiny::a("GRIN-Portal", href="http://grin-portal.broadinstitute.org/", target = '_blank'),
+                       p(shiny::a("SCN Portal", href="http://scn-portal.broadinstitute.org/", target = '_blank'), "| ",
+                         shiny::a("GRIN Portal", href="http://grin-portal.broadinstitute.org/", target = '_blank'), "|  ",
+                         shiny::a("CACNA1A Portal", href="http://cacna1a-portal.broadinstitute.org/", target = '_blank'), "|  ",
+                         shiny::a("SATB2 Portal", href="http://satb2-portal.broadinstitute.org/", target = '_blank'), "| ",
+                         shiny::a("NDD-CNV Portal", href="https://ndd-cnv-portal.broadinstitute.org/", target = '_blank'),
                          style = "font-size:12px;")
                 ),
                 column(4, align = "center",
@@ -391,7 +394,7 @@ shinyUI(
                                  timelineLabel(2015, color = "teal"),
                                  timelineItem(
                                    title = div(strong("Discovery of",em("SLC6A1"),"as cause for epilepsy with myoclonic-atonic seizures")),
-                                   icon = icon("dna"),
+                                   icon = tags$i(class = "fa fa-dna", role = "presentation"),
                                    color = "olive",
                                    #ADD link to the publication
                                    time = shiny::a("Carvill et al.", href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4570550/", target = '_blank'),
@@ -400,7 +403,7 @@ shinyUI(
                                  timelineLabel(2018, color = "teal"),
                                  timelineItem(
                                      title = div("Delineation of the phenotypic spectrum"),
-                                     icon = icon("user"),
+                                     icon = tags$i(class = "fa fa-user", role = "presentation"),
                                      color = "aqua",
                                      #ADD link to the publication
                                      time = shiny::a("Johannesen et al.", href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5912688/", target = '_blank'),
@@ -409,7 +412,7 @@ shinyUI(
                                  timelineLabel(2020, color = "teal"),
                                  timelineItem(
                                    title = HTML(paste0("Current knowledge of ",em("SLC6A1"),"-related neurodevelopmental disorders")),
-                                   icon = icon("user"),
+                                   icon = tags$i(class = "fa fa-user", role = "presentation"),
                                    color = "aqua",
                                    #ADD link to the publication
                                    time = shiny::a("Goodspeed et al.", href="https://academic.oup.com/braincomms/article/2/2/fcaa170/5922604?login=true", target = '_blank'),
@@ -418,7 +421,7 @@ shinyUI(
                                  timelineLabel(2021, color = "teal"),
                                  timelineItem(
                                    title = div("Common molecular mechanisms of",em("SLC6A1")),
-                                   icon = icon("user"),
+                                   icon = tags$i(class = "fa fa-user", role = "presentation"),
                                    color = "aqua",
                                    #ADD link to the publication
                                    time = shiny::a("Mermer et al.", href="https://pubmed.ncbi.nlm.nih.gov/34028503/", target = '_blank'),
