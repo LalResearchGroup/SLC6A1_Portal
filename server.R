@@ -60,7 +60,7 @@ lolliplot_fill_scheme <-  #("Missense"="#D55E00","PTV"="#0072B2","Control" ="#00
         "Transmembrane" = "#66FFFF",
         "Linker" = "lightgray",
         "C-Terminal-Cytoplasmic"="#FFB266",
-        "no" = "#FFFFFF",
+        "No" = "#FFFFFF",
         "Missense" = "#D55E00",
         "Synonymous" = "#D55E00",
         "PTV" = "#0072B2",
@@ -373,13 +373,13 @@ map_var_3d <- function(data,Gene_sel,gnomad_bool,pdb_sel,structure_coordinates,s
   
   variant.df <- variant.df %>%
     left_join(structure.df,by = c("AA_pos" = "Uniprot_position","AA_ref" = "Aminoacid","Gene" = "gene")) %>%
-    mutate(struc_cov = ifelse(is.na(Position_in_structure),"no","yes")) %>%  #this column constraints the information whether a variant can be displayed on the structure or not
-    filter(struc_cov == "yes")
+    mutate(struc_cov = ifelse(is.na(Position_in_structure),"No","Yes")) %>%  #this column constraints the information whether a variant can be displayed on the structure or not
+    filter(struc_cov == "Yes")
   
   gnomad.df <- gnomad.df %>%
     left_join(structure.df,by = c("AA_pos" = "Uniprot_position","AA_ref" = "Aminoacid","Gene" = "gene")) %>%
-    mutate(struc_cov = ifelse(is.na(Position_in_structure),"no","yes")) %>%  #this column constraints the information whether a variant can be displayed on the structure or not
-    filter(struc_cov == "yes")
+    mutate(struc_cov = ifelse(is.na(Position_in_structure),"No","Yes")) %>%  #this column constraints the information whether a variant can be displayed on the structure or not
+    filter(struc_cov == "Yes")
   
   sub_color <- c("#e2f970","#6fbbf7","#ee6c71","#ffbc5a","#bf73cc")
   sub_scale <- c(1.2,0.8)
@@ -652,7 +652,7 @@ exchanges <- all_exchanges.df %>%
   select(cDNA_pos, cDNA_ref, cDNA_alt, AA_pos, AA_ref, AA_alt, Vartype)
 
 #Load patient and control data 
-Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v8.txt", delim = "\t") %>% 
+Patient_data.df <- read_csv("data/Patient_variants_SLC6A1_v11.1.csv") %>%
   select(-Transcript) %>% 
   mutate(AA_pos = as.numeric(AA_pos)) %>% 
   ##specific to each dataset
@@ -1870,16 +1870,16 @@ shinyServer(function(input, output, session) {
 
     variant.df <- variant.df %>%
       left_join(structure.df,by = c("AA_pos" = "Uniprot_position","AA_ref" = "Aminoacid","Gene" = "gene")) %>%
-      mutate(struc_cov = ifelse(is.na(Position_in_structure),"no","yes")) %>%  #this column constraints the information whether a variant can be displayed on the structure or not
-      filter(struc_cov == "yes") %>%
+      mutate(struc_cov = ifelse(is.na(Position_in_structure),"No","Yes")) %>%  #this column constraints the information whether a variant can be displayed on the structure or not
+      filter(struc_cov == "Yes") %>%
       distinct(Position_in_structure,Gene) %>%
       dplyr::group_by(Position_in_structure) %>%
       dplyr::summarise(var_mut = ifelse(n() >1,"mutiple",Gene))
 
     gnomad.df <- gnomad.df %>%
       left_join(structure.df,by = c("AA_pos" = "Uniprot_position","AA_ref" = "Aminoacid","Gene" = "gene")) %>%
-      mutate(struc_cov = ifelse(is.na(Position_in_structure),"no","yes")) %>%  #this column constraints the information whether a variant can be displayed on the structure or not
-      filter(struc_cov == "yes") %>%
+      mutate(struc_cov = ifelse(is.na(Position_in_structure),"No","Yes")) %>%  #this column constraints the information whether a variant can be displayed on the structure or not
+      filter(struc_cov == "Yes") %>%
       distinct(Position_in_structure,Gene) %>%
       dplyr::group_by(Position_in_structure) %>%
       dplyr::summarise(var_mut = ifelse(n() >1,"mutiple",Gene))
@@ -2661,8 +2661,8 @@ shinyServer(function(input, output, session) {
     
     variant.df <- variant.df %>%
       left_join(structure.df,by = c("AA_pos" = "Uniprot_position","AA_ref" = "Aminoacid","Gene" = "gene")) %>%
-      mutate(struc_cov = ifelse(is.na(Position_in_structure),"no","yes")) %>% 
-      filter(struc_cov == "yes") 
+      mutate(struc_cov = ifelse(is.na(Position_in_structure),"No","Yes")) %>% 
+      filter(struc_cov == "Yes") 
     
     
     sub_color <- c("#cc0000","#66ffff", "#ff8000","#6600cc","#c0c0c0")

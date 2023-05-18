@@ -192,7 +192,7 @@ research_geno_abbr_3 <- p("Abbreviations:",
 activity_legend <- "legend_activity_groups_portal.png"
 
 #Datasets required for research tab 
-Patient_data.df <- read_delim("data/Patient_variants_SLC6A1_v8.txt", delim = "\t") %>%
+Patient_data.df <- read_csv("data/Patient_variants_SLC6A1_v11.1.csv") %>%
   dplyr::rename(Sz_onset = "Age at seizure onset (months)",
          Epilepsy = "Epilepsy") %>% 
   dplyr::rename(Autism = "Autistic traits",
